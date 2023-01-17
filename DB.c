@@ -46,7 +46,7 @@ void create_list(FILE *file)
         Dept *new = create_dept_from_str(buf);
         add_new(new);
     }
-    tree_in_order(sort_by_id_root);
+    tree_in_order(sort_by_dept_root);
 };
 
 void add_dept_in_tail(Dept *dept)
@@ -118,7 +118,7 @@ void add_to_dept_BST(BSTNode **dept_root, List *list)
         return;
     }
 
-    if ((*dept_root)->list->dept.dept > list->dept.dept)
+    if ((*dept_root)->list->dept.dept <= list->dept.dept)
     {
         add_to_dept_BST(&((*dept_root)->left), list);
     }
@@ -136,10 +136,12 @@ void tree_in_order(BSTNode *root)
     }
 
     tree_in_order(root->left);
+    // tree_in_order(root->right);
     // creat a task to do
     // or a void func to do everything
     printf("%s %s, dept: %d\n", root->list->dept.first_name, root->list->dept.last_name, root->list->dept.dept);
     tree_in_order(root->right);
+    // tree_in_order(root->left);
 }
 
 List *find_by_id(BSTNode *root, int id)

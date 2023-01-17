@@ -15,7 +15,5 @@ typedef struct
 } Dept;
 
 void create_list(FILE *file);
-// int add_dept();
-// void get_dept();
 
 #endif

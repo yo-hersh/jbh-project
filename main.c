@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
 
     FILE *file = fopen(argv[1], "r");
 
-    FILE *file = fopen(file, "r");
+    // FILE *file = fopen("DB.csv", "r");
     if (!file)
     {
         printf("Error: file %s not found\n", argv[1]);

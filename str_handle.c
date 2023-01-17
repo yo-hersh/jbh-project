@@ -8,7 +8,7 @@ Dept *create_dept_from_str(char *str)
     int column = 1;
     while (value)
     {
-//  check after creating?
+        //  check after creating?
         switch (column)
         {
         case 1:
@@ -43,4 +43,40 @@ Dept *create_dept_from_str(char *str)
         value = strtok(NULL, ",");
     }
     return new;
+}
+
+int valid_values(Dept *new)
+{
+}
+
+char *remove_white_spaces(char *str, int len)
+{
+    int i = 0, j = 0;
+    char *new_str = calloc(len +1 ,sizeof(char));
+
+    for (i = 0; str[i]; i++)
+    {
+        if (str[i] == ' ')
+        {
+            if (j == 0 || str[i + 1] == ' ' || str[i + 1] == '\0')
+            {
+                continue;
+            }
+        }
+        new_str[j++] = str[i];
+    }
+    return new_str;
+}
+
+int is_included_digit(char *str)
+{
+    while ((*str) != '\0')
+    {
+        if (str[0] != 32 && (str[0] > 127 || str[0] < 97))
+        {
+            return 1;
+        }
+        str++;
+    }
+    return 0;
 }
