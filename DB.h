@@ -6,12 +6,13 @@
 
 typedef struct
 {
-    char first_name[20];
-    char last_name[20];
+    char *first_name;
+    // char first_name[20];
+    char *last_name;
     unsigned int id;
     unsigned int phone;
     int dept;
-    char date[11];
+    char *date;
 } Dept;
 
 void create_list(FILE *file);
