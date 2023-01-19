@@ -7,7 +7,7 @@
 typedef struct
 {
     int day, mount, year
-}Date;
+} Date;
 
 typedef struct
 {
@@ -21,15 +21,17 @@ typedef struct
     // char *date;
 } Costumer;
 
-typedef struct 
+typedef enum
 {
-    char *value;
-    char *oper;
-    char *find_value;
-}Comp;
-
+    EQUAL,
+    NOT_EQUAL,
+    GREETER,
+    SMALLER
+} OPER_E;
 
 void create_list(FILE *file);
-void *compere(Comp *comp);
+void compare(Costumer *costumer, void *arr, int *arr_length, OPER_E oper);
+
+// void compere(Costumer *costumer, void *arr, BSTNode *root, int *arr_length, OPER_E oper);
 
 #endif
