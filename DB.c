@@ -14,13 +14,13 @@ typedef enum
 
 typedef struct _List
 {
-    Dept dept;
+    Costumer costumer;
     struct _List *next;
 } List;
 
 // a binary tree
 // using to get indexes
-// wee creating a tree to index the dept sum and the id
+// wee creating a tree to index the costumer sum and the id
 typedef struct _BSTNode
 {
     List *list;
@@ -32,10 +32,10 @@ BSTNode *sort_by_id_root = NULL;
 BSTNode *sort_by_dept_root = NULL;
 
 void tree_in_order(BSTNode *root);
-void add_new(Dept *new);
+void add_new(Costumer *new);
 void add_to_id_BST(BSTNode **root, List *list);
 void add_to_dept_BST(BSTNode **root, List *list);
-void add_dept_in_tail(Dept *dept);
+void add_dept_in_tail(Costumer *costumer);
 List *find_by_id(BSTNode *root, int id);
 
 void create_list(FILE *file)
@@ -43,23 +43,23 @@ void create_list(FILE *file)
     char buf[100];
     while (fgets(buf, sizeof(buf), file))
     {
-        Dept *new = create_dept_from_str(buf);
+        Costumer *new = create_dept_from_str(buf);
         add_new(new);
     }
     tree_in_order(sort_by_dept_root);
 };
 
-void add_dept_in_tail(Dept *dept)
+void add_dept_in_tail(Costumer *costumer)
 {
     List *new = calloc(1, sizeof(List));
-    new->dept = (*dept);
-    
+    new->costumer = (*costumer);
+
     if (tail)
     {
         (tail)->next = new;
     }
     (tail) = new;
-    free(dept);
+    free(costumer);
 
     // its hear for an option to create the first costumer from the shall, not from file.
     if (!head)
@@ -68,7 +68,7 @@ void add_dept_in_tail(Dept *dept)
     }
 }
 
-void add_new(Dept *new)
+void add_new(Costumer *new)
 {
     List *found = NULL;
     found = find_by_id(sort_by_id_root, new->id);
@@ -83,8 +83,8 @@ void add_new(Dept *new)
     {
         // if name is not equal throw error
         // else
-        found->dept.dept += new->dept;
-        strcpy(found->dept.date, new->date);
+        found->costumer.dept += new->dept;
+        strcpy(found->costumer.date, new->date);
 
         free(new);
     }
@@ -99,7 +99,7 @@ void add_to_id_BST(BSTNode **id_root, List *list)
         return;
     }
 
-    if ((*id_root)->list->dept.id > list->dept.id)
+    if ((*id_root)->list->costumer.id > list->costumer.id)
     {
         add_to_id_BST(&((*id_root)->left), list);
     }
@@ -118,7 +118,7 @@ void add_to_dept_BST(BSTNode **dept_root, List *list)
         return;
     }
 
-    if ((*dept_root)->list->dept.dept <= list->dept.dept)
+    if ((*dept_root)->list->costumer.dept <= list->costumer.dept)
     {
         add_to_dept_BST(&((*dept_root)->left), list);
     }
@@ -139,7 +139,7 @@ void tree_in_order(BSTNode *root)
     // tree_in_order(root->right);
     // creat a task to do
     // or a void func to do everything
-    printf("%s %s, dept: %d\n", root->list->dept.first_name, root->list->dept.last_name, root->list->dept.dept);
+    printf("%s %s, costumer: %d\n", root->list->costumer.first_name, root->list->costumer.last_name, root->list->costumer.dept);
     tree_in_order(root->right);
     // tree_in_order(root->left);
 }
@@ -151,17 +151,108 @@ List *find_by_id(BSTNode *root, int id)
         return NULL;
     }
 
-    if (root->list->dept.id == id)
+    if (root->list->costumer.id == id)
     {
         return root->list;
     }
 
-    if (id > root->list->dept.id)
+    if (id > root->list->costumer.id)
     {
         return find_by_id(root->right, id);
     }
     else
     {
         return find_by_id(root->left, id);
+    }
+}
+
+void compere(Costumer *costumer, void *arr, BSTNode *root, int *arr_length, OPER_E oper)
+{
+    if (!root)
+    {
+        return;
+    }
+    tree_in_order(root->left);
+    int ret = func_to_comp(root, costumer);
+    switch (oper)
+    {
+    case GREETER:
+        if (ret > 0)
+        {
+            add_to_arr(arr, root, arr_length);
+        }
+        break;
+    case SMALLER:
+        if (ret < 0)
+        {
+            add_to_arr(arr, root, arr_length);
+        }
+        break;
+    case EQUAL:
+        if (ret == 0)
+        {
+            add_to_arr(arr, root, arr_length);
+        }
+        break;
+    case NOT_EQUAL:
+        if (ret != 0)
+        {
+            add_to_arr(arr, root, arr_length);
+        }
+        break;
+    }
+    tree_in_order(root->right);
+}
+
+void add_to_arr(void *arr, BSTNode *root, int *arr_length)
+{
+    arr_length++;
+    arr = realloc(arr, arr_length * sizeof(void *));
+    arr[arr_length - 1] = &root->costumer;
+}
+
+void *func_to_comp(BSTNode *root, Costumer *costumer)
+{
+    // צריך לטפל באורך ההשוואה , במידה והlist קטן יותר יחזיר true
+
+    if (costumer.first_name)
+    {
+        return memcmp(root->list.first_name, costumer.first_name, strlen(root->list.first_name));
+    }
+    else if (costumer.last_name)
+    {
+        return memcmp(root->list.last_name, costumer.last_name, strlen(root->list.last_name));
+    }
+    else if (costumer.id)
+    {
+        return memcmp(root->list.id, costumer.id, strlen(root->list.id));
+    }
+    else if (costumer.phone)
+    {
+        return memcmp(root->list.phone, costumer.phone, strlen(root->list.phone));
+    }
+    else if (costumer.dept)
+    {
+        return memcmp(root->list.dept, costumer.dept, strlen(root->list.dept));
+    }
+    else if (costumer.date)
+    {
+        int year = memcmp(root->list.date.year, costumer.data.year, sizeof(int));
+        if (year)
+        {
+            return year;
+        }
+        else
+        {
+            int mount = memcmp(root->list.date.mount, costumer.data.mount, sizeof(int));
+            if (mount)
+            {
+                return mount;
+            }
+            else
+            {
+                return memcmp(root->list.date.day, costumer.data.day, sizeof(int));
+            }
+        }
     }
 }

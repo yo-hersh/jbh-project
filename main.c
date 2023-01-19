@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "DB.h"
+#include "users_input.h"
 
 int main(int argc, char const *argv[])
 {
@@ -22,8 +23,20 @@ int main(int argc, char const *argv[])
     }
 
     create_list(file);
+    char buf[200] = {0};
     while (1)
     {
+        fgets(buf, sizeof(buf), stdin);
+        if (buf == "quit")
+        {
+            break;
+        }
+        else
+        {
+            
+            user_str(buf);
+        }
+
         // get input from user
         // user_manage
         // getstr(*str)
@@ -32,6 +45,8 @@ int main(int argc, char const *argv[])
         //     call free_link()
         // break;
     }
+
+    printf("see you, let's have a nice day");
 
     return 0;
 }

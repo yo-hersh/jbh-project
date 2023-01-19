@@ -1,3 +1,0 @@
-
-
-int getstr(char *str);
