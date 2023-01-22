@@ -12,88 +12,96 @@ int valid_id(char *str);
 int valid_name(char *str);
 int is_not_only_digit(char *str);
 int is_not_only_char(char *str);
-void add_to_error_str(char *error_str, int line_num, char *value);
+// void add_to_error_str(char *error_str, int line_num, char *value);
+void print_err(char *str, int line);
 
 Costumer *create_dept_from_str(char *str, int line)
 {
     Costumer *new = calloc(1, sizeof(Costumer));
-    char *line_str;
-    if (line)
-    {
-        line_str = "Line " + line + ": ";
-    }
+    // char *line_str;
+    // if (line)
+    // {
+    //     strcat(line_str, "Line ");
+    //     strcat(*line_str, *(char *)line);
+    //     strcat(line_str, ": ");
+
+    //     // line_str = "Line " + line + ": ";
+    // }
 
     int is_error = 0;
-    char *error_arr[] = {0};
+    // char *error_arr[] = {0};
 
     str_to_lower(str);
     str = remove_white_spaces(str, strlen(str) + 1);
 
-    char *value = strtok(str, ", ");
+    char *value = strtok(str, ",");
     int column = 1;
     while (value)
     {
+        value = remove_white_spaces(value, strlen(str) + 1);
+
         switch (column)
         {
         case 1:
-            if (valid_name(str))
+            if (valid_name(value))
             {
                 new->first_name = value;
             }
             else
             {
-                printf("%serror: first name not in the real format\n", line_str);
-                is_error = 1;
+                print_err("first name not in the real format", line);
+                // printf("%serror: first name not in the real format\n", line_str);
+                // is_error = 1;
             }
             break;
         case 2:
-            if (valid_name(str))
+            if (valid_name(value))
             {
                 new->last_name = value;
             }
             else
             {
-                printf("%serror: last name not in the real format\n", line_str);
+                // printf("%serror: last name not in the real format\n", line_str);
                 is_error = 1;
             }
             break;
         case 3:
-            if (valid_id(str))
+            if (valid_id(value))
             {
                 new->id = atoi(value);
             }
             else
             {
-                printf("%serror: last name not in the real format\n", line_str);
+                // printf("%serror: last name not in the real format\n", line_str);
                 is_error = 1;
             }
             break;
         case 4:
-            if (valid_phone(str))
+            if (valid_phone(value))
             {
                 new->phone = atoi(value);
             }
             else
             {
-                printf("%serror: last name not in the real format\n", line_str);
+                // printf("%serror: last name not in the real format\n", line_str);
                 is_error = 1;
             }
             break;
         case 5:
-            if (valid_dept(str))
+            if (valid_dept(value))
             {
                 new->dept = atoi(value);
             }
             else
             {
-                printf("%serror: last name not in the real format\n", line_str);
+                // printf("%serror: last name not in the real format\n", line_str);
                 is_error = 1;
             }
             break;
         case 6:
-            if (!valid_date(str, new))
+            if (!valid_date(value, new))
             {
-                printf("%serror: last name not in the real format\n", line_str);
+                // printf("%serror: last name not in the real format\n", line_str);
                 is_error = 1;
             }
             break;
@@ -109,7 +117,7 @@ Costumer *create_dept_from_str(char *str, int line)
     }
 
     return new;
-}
+};
 
 // int invalid_string(char *str, char *value)
 // {
@@ -151,7 +159,7 @@ char *remove_white_spaces(char *str, int len)
         new_str[j++] = str[i];
     }
     return new_str;
-}
+};
 
 int is_not_only_char(char *str)
 {
@@ -164,7 +172,7 @@ int is_not_only_char(char *str)
         str++;
     }
     return 0;
-}
+};
 
 int is_not_only_digit(char *str)
 {
@@ -174,9 +182,10 @@ int is_not_only_digit(char *str)
         {
             return 1;
         }
+        str++;
     }
     return 0;
-}
+};
 
 void str_to_lower(char *str)
 {
@@ -189,12 +198,12 @@ void str_to_lower(char *str)
         }
         i++;
     }
-}
+};
 
-void add_to_error_str(char *error_str, int line_num, char *value)
-{
-    error_str += line_num + "invalid " + value ", contain last one cher, char only";
-}
+// void add_to_error_str(char *error_str, int line_num, char *value)
+// {
+//     error_str += line_num + "invalid " + value ", contain last one cher, char only";
+// }
 
 int valid_name(char *str)
 {
@@ -209,7 +218,7 @@ int valid_name(char *str)
     }
 
     return 1;
-}
+};
 
 int valid_id(char *str)
 {
@@ -217,14 +226,23 @@ int valid_id(char *str)
     {
         return 0;
     }
-
-    if (strlen(str) != 9 || !is_not_only_digit(str) || !atoi(str) > 0)
+    printf("%d\n", strlen(str));
+    // if (strlen(str) != 9 || !is_not_only_digit(str) || !(atoi(str) > 0))
+    if (strlen(str) != 9)
+    {
+        return 0;
+    }
+    if (!is_not_only_digit(str))
+    {
+        return 0;
+    }
+    if (!(atoi(str) > 0))
     {
         return 0;
     }
 
     return 1;
-}
+};
 
 int valid_phone(char *str)
 {
@@ -239,7 +257,7 @@ int valid_phone(char *str)
     }
 
     return 1;
-}
+};
 
 int valid_dept(char *str)
 {
@@ -254,7 +272,7 @@ int valid_dept(char *str)
     }
 
     return 1;
-}
+};
 
 int valid_date(char *str, Costumer *costumer)
 {
@@ -263,6 +281,7 @@ int valid_date(char *str, Costumer *costumer)
         return 0;
     }
 
+    int day, month, year;
     char *value = strtok(str, "/");
     int column = 1;
     while (value)
@@ -275,32 +294,55 @@ int valid_date(char *str, Costumer *costumer)
         switch (column)
         {
         case 1:
-            int day = atoi(value);
+            day = atoi(value);
             if (day <= 0 || day > 31)
             {
                 return 0;
             }
-            costumer->date->day = day;
+            costumer->date.day = day;
             break;
         case 2:
-            int month = atoi(value);
+            month = atoi(value);
             if (month <= 0 || month > 12)
             {
                 return 0;
             }
-            costumer->date->month = month;
+            costumer->date.month = month;
             break;
         case 3:
-            int year = atoi(value);
-            if (year <= 2022 || year > 3000)
+            year = atoi(value);
+            if (year <= 1970 || year > 3000)
             {
                 return 0;
             }
-            costumer->date->year = year;
+            costumer->date.year = year;
             break;
         default:
             break;
         }
+        value = strtok(NULL, "/");
+        column++;
     }
     return 1;
-}
+};
+
+void print_err(char *str, int line)
+{
+    printf("error");
+    if (line)
+    {
+        printf("line %d", line);
+    }
+    printf(": %s\n", str);
+};
+
+char *concat(const char *s1, const char *s2)
+{
+    int len1 = strlen(s1);
+    int len2 = strlen(s2);
+    char *result = malloc(len1 + len2 + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    memcpy(result, s1, len1);
+    memcpy(result + len1, s2, len2 + 1); // +1 to copy the null-terminator
+    return result;
+};

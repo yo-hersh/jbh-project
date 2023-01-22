@@ -39,22 +39,26 @@ void add_dept_in_tail(Costumer *costumer);
 List *find_by_id(BSTNode *root, int id);
 void compare(Costumer *costumer, void *arr, int *arr_length, OPER_E oper);
 void compere_with_tree(Costumer *costumer, void *arr, BSTNode *root, int *arr_length, OPER_E oper);
-
+int func_to_comp(Costumer *root, Costumer *costumer);
 
 void create_list(FILE *file)
 {
     char buf[100];
+    int line = 0;
     while (fgets(buf, sizeof(buf), file))
     {
-        Costumer *new = create_dept_from_str(buf);
-        add_new(new);
+        Costumer *new = create_dept_from_str(buf, ++line);
+        if (new)
+        {
+            add_new(new);
+        };
     }
 };
 
 void add_new(Costumer *new)
 {
-    List *found = NULL;
-    found = find_by_id(sort_by_id_root, new->id);
+    // List *found = NULL;
+    List *found = find_by_id(sort_by_id_root, new->id);
 
     if (found == NULL)
     {
@@ -64,24 +68,26 @@ void add_new(Costumer *new)
     }
     else
     {
-        if (found->first_name != new->first_name)
+        if (strcmp(found->costumer.first_name, new->first_name))
         {
-            printf("first name is not equal to the name in the DB");
+            printf("first name is not equal to the name in the DB\n");
             goto free;
         }
 
-        if (found->last_name != new->last_name)
+        if (strcmp(found->costumer.last_name, new->last_name))
         {
-            printf("last name is not equal to the name in the DB");
+            printf("last name is not equal to the name in the DB\n");
             goto free;
         }
 
         found->costumer.dept += new->dept;
-        found->costumer->phone = new->costumer->phone;
-        strcpy(found->costumer.date, new->date);
+        found->costumer.phone = new->phone;
+        found->costumer.date = new->date;
+        // memcpy(found->costumer.date, new->date,sizeof(Date));
     free:
         free(new);
     }
+    tree_in_order(sort_by_id_root);
 }
 
 void add_dept_in_tail(Costumer *costumer)
@@ -178,7 +184,7 @@ List *find_by_id(BSTNode *root, int id)
 // need to change to void func
 void compare(Costumer *costumer, void *arr, int *arr_length, OPER_E oper)
 {
-    compere(costumer, arr, sort_by_dept_root, arr_length, oper);
+    compere_with_tree(costumer, arr, sort_by_dept_root, arr_length, oper);
 }
 
 void compere_with_tree(Costumer *costumer, void *arr, BSTNode *root, int *arr_length, OPER_E oper)
@@ -188,7 +194,7 @@ void compere_with_tree(Costumer *costumer, void *arr, BSTNode *root, int *arr_le
         return;
     }
     tree_in_order(root->left);
-    int ret = func_to_comp(root, costumer);
+    int ret = func_to_comp(&(root->list->costumer), costumer);
     switch (oper)
     {
     case GREETER:
@@ -222,52 +228,72 @@ void compere_with_tree(Costumer *costumer, void *arr, BSTNode *root, int *arr_le
 void add_to_arr(void *arr, BSTNode *root, int *arr_length)
 {
     arr_length++;
-    arr = realloc(arr, arr_length * sizeof(void *));
-    arr[arr_length - 1] = &root->costumer;
+    // arr = realloc(arr, arr_length * sizeof(void *));
+    // arr[arr_length - 1] = &root->list->costumer;
 }
 
-void *func_to_comp(BSTNode *root, Costumer *costumer)
+int func_to_comp(Costumer *root, Costumer *costumer)
 {
     // צריך לטפל באורך ההשוואה , במידה והlist קטן יותר יחזיר true
 
     if (costumer->first_name)
     {
-        return memcmp(root->list->first_name, costumer->first_name, strlen(root->list->first_name));
+        return strcmp(root->first_name, costumer->first_name);
     }
     else if (costumer->last_name)
     {
-        return memcmp(root->list->last_name, costumer->last_name, strlen(root->list->last_name));
+        return strcmp(root->last_name, costumer->last_name);
     }
     else if (costumer->id)
     {
-        return memcmp(root->list->id, costumer->id, strlen(root->list->id));
+        return comp_int(root->id, costumer->id);
     }
     else if (costumer->phone)
     {
-        return memcmp(root->list->phone, costumer->phone, strlen(root->list->phone));
+        return comp_int(root->phone, costumer->phone);
+
+        // return memcmp(root->phone, costumer->phone, strlen(root->phone));
     }
     else if (costumer->dept)
     {
-        return memcmp(root->list->dept, costumer->dept, strlen(root->list->dept));
+        return comp_int(root->dept, costumer->dept);
+        // return memcmp(root->dept, costumer->dept, strlen(root->dept));
     }
-    else if (costumer->date)
+    else if (costumer->date.year)
     {
-        int year = memcmp(root->list->date->year, costumer->data->year, sizeof(int));
+
+        int year = comp_int(root->date.year, costumer->date.year);
         if (year)
         {
             return year;
         }
         else
         {
-            int mount = memcmp(root->list->date->mount, costumer->data->mount, sizeof(int));
-            if (mount)
+            int month = comp_int(root->date.month, costumer->date.month);
+            if (month)
             {
-                return mount;
+                return month;
             }
             else
             {
-                return memcmp(root->list->date->day, costumer->data->day, sizeof(int));
+                return comp_int(root->date.day, costumer->date.day);
             }
         }
     }
-}
+};
+
+int comp_int(int first, int second)
+{
+    if (first > second)
+    {
+        1;
+    }
+    else if (first < second)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+};

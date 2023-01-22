@@ -27,13 +27,13 @@ int main(int argc, char const *argv[])
     while (1)
     {
         fgets(buf, sizeof(buf), stdin);
-        if (buf == "quit")
+        if (!strcmp(buf, "quit\n"))
         {
             break;
         }
         else
         {
-            
+
             user_str(buf);
         }
 
@@ -46,7 +46,7 @@ int main(int argc, char const *argv[])
         // break;
     }
 
-    printf("see you, let's have a nice day");
+    printf("see you, let's have a nice day\n");
 
     return 0;
 }

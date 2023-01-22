@@ -6,7 +6,7 @@
 
 typedef struct
 {
-    int day, mount, year
+    int day, month, year;
 } Date;
 
 typedef struct

@@ -3,8 +3,8 @@
 
 #include "DB.h"
 
-Costumer *create_dept_from_str(char *str);
+Costumer *create_dept_from_str(char *str, int line);
 void str_to_lower(char *str);
-char *remove_white_spaces(char *str, int len)
+char *remove_white_spaces(char *str, int len);
 
 #endif
