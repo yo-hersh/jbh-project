@@ -30,6 +30,7 @@ int main(int argc, char const *argv[])
     char buf[200] = {0};
     while (1)
     {
+        memset(error_msg, 0, sizeof(error_msg));
         printf("%s", display_option);
         fgets(buf, sizeof(buf), stdin);
         if (!strcmp(buf, "quit\n"))
@@ -54,6 +55,10 @@ int main(int argc, char const *argv[])
         }
         else
         {
+            if (buf[strlen(buf) - 1] == '\n')
+            {
+                buf[strlen(buf) - 1] = '\0';
+            }
             int ret = 0;
             if (buf[0])
             {

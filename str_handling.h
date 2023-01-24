@@ -12,9 +12,7 @@ int valid_id(char *str);
 int valid_name(char *str);
 int is_not_only_digit(char *str);
 int is_not_only_char(char *str);
-void stringify_costumer(Costumer *costumer, char *buf, unsigned int len, unsigned int curr);
-
-// char *stringify_costumer(Costumer *costumer);
+void stringify_costumer(Costumer *costumer, char *buf, unsigned int len);
 void print_costumer(Costumer *costumer);
 
 #endif

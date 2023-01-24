@@ -12,20 +12,16 @@ typedef struct
 typedef struct
 {
     char *first_name;
-    // char first_name[20];
     char *last_name;
     unsigned int id;
     unsigned int phone;
     int dept;
     Date date;
-    // char *date;
 } Costumer;
 
-
 void create_list(FILE *file);
-// typedef void *(*DO_SOMETHING)(Costumer *);
-char *compare_str(char *str, char *oper, int index, char *error_msg);
-int create_costumer(char *str, int line, char *error_msg);
+char *compare_str(char *str, char *oper, unsigned int index, char *error_msg);
+int create_costumer(char *str, unsigned int line, char *error_msg);
 void print();
 void free_all();
 

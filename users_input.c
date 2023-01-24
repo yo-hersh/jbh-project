@@ -16,6 +16,7 @@ int set_handling(char *str, char *error_msg);
 
 int user_str(char *str, char *error_msg)
 {
+    int ret = 0;
     str_to_lower(str);
     remove_white_spaces(str);
     for (int i = 0; i < ARR_LEN(options_arr); i++)
@@ -31,7 +32,12 @@ int user_str(char *str, char *error_msg)
                 break;
             case 1:
                 str += len;
-                return set_handling(str, error_msg);
+                ret = set_handling(str, error_msg);
+                if (!ret)
+                {
+                    printf("created successfully");
+                }
+                return ret;
                 break;
             default:
                 sprintf(&(error_msg[strlen(error_msg)]), "invalid used. use: set / select / print only\n");
@@ -92,13 +98,12 @@ int select_handling(char *str, char *error_msg)
     remove_white_spaces(str);
     char *return_str = compare_str(str, oper, i, error_msg);
 
-    // its the real way???
     if (*error_msg)
     {
         return 1;
     }
 
-    if (*return_str)
+    if (return_str)
     {
         printf("found:\n%s", return_str);
     }
@@ -106,21 +111,6 @@ int select_handling(char *str, char *error_msg)
     {
         printf("nothing found\n");
     }
-    free(return_str);
-
-    // Costumer *new = create_comp_costumer(str, i);
-    // if (new)
-    // {
-    // char *return_str = compare(new, oper);
-    // if (*return_str)
-    // {
-    // printf("%s", return_str);
-    // }
-    // }
-    // else
-    // {
-    //     /* code */
-    // }
 
     return 0;
 }
@@ -128,16 +118,16 @@ int select_handling(char *str, char *error_msg)
 int set_handling(char *str, char *error_msg)
 {
     char *values = calloc(1, strlen(str) * sizeof(char));
-    if (values)
+    if (!values)
     {
-        /* code */
+        perror("error creating values str");
+        return 1;
     }
 
-    // unsigned int curr = 0;
     if (*str == '\n')
     {
         sprintf(&(error_msg[strlen(error_msg)]), "invalid value\n");
-        return 1;
+        goto exit;
     }
 
     if (*str == ' ')
@@ -146,36 +136,42 @@ int set_handling(char *str, char *error_msg)
     }
 
     char *value = strtok(str, ",\n");
+    int i = 0;
+
     for (int i = 0; i < ARR_LEN(values_arr); i++)
     {
+        if (!value)
+        {
+            sprintf(&(error_msg[strlen(error_msg)]), "value <%s> dont found\n", values_arr[i]);
+            goto exit;
+        }
+
         remove_white_spaces(value);
         unsigned int len = strlen(values_arr[i]);
         if (memcmp(value, values_arr[i], len))
         {
-            return 1;
+            sprintf(&(error_msg[strlen(error_msg)]), "value <%s> dont found\n", values_arr[i]);
+            goto exit;
         }
         value += len;
 
         if (*value != '=')
         {
             sprintf(&(error_msg[strlen(error_msg)]), "invalid operation\n");
-            return 1;
+            goto exit;
         }
 
-        // למה משמש?
         value++;
 
-        int v_len = strlen(value);
-        if (value[v_len] == '\n')
-        {
-            value[v_len] = '\0';
-        }
-
-        // יש תצורך???
         int values_len = strlen(values);
         sprintf(&(values[values_len]), "%s,", value);
         value = strtok(NULL, ",\n");
     }
 
-    return create_costumer(values, 0, error_msg);
+    int ret = create_costumer(values, 0, error_msg);
+    free(values);
+    return ret;
+exit:
+    free(values);
+    return 1;
 }

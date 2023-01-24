@@ -4,7 +4,6 @@
 #include "DB.h"
 #include "str_handling.h"
 
-// לבדוק שההקצאה הצליחה
 
 typedef struct _List
 {
@@ -12,9 +11,6 @@ typedef struct _List
     struct _List *next;
 } List;
 
-// a binary tree
-// using to get indexes
-// wee creating a tree to index the costumer sum and the id
 typedef struct _BSTNode
 {
     List *list;
@@ -25,32 +21,33 @@ List *head = NULL, *tail = NULL;
 BSTNode *sort_by_id_root = NULL;
 BSTNode *sort_by_dept_root = NULL;
 
-int create_costumer(char *str, int line, char *error_msg);
+int create_costumer(char *str,unsigned int line, char *error_msg);
 void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer));
 int add_new(Costumer *new, char *error_msg);
 void add_to_id_BST(BSTNode **root, List *list);
 void add_to_dept_BST(BSTNode **root, List *list);
 void add_dept_in_tail(Costumer *costumer);
-char *compare_str(char *str, char *oper, int index, char *error_msg);
+char *compare_str(char *str, char *oper, unsigned int index, char *error_msg);
 char *compare(Costumer *costumer, char *oper);
 int func_to_comp(Costumer *root, Costumer *costumer);
-void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char *arr);
+void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char **arr);
 void add_date(char *str, Costumer *costumer);
-void delete_dept_bst(BSTNode **root, int dept, int id);
-void add_to_arr(void *arr, Costumer *costumer);
+void delete_dept_bst(BSTNode **root, int dept, unsigned int id);
+void add_to_arr(char **arr, Costumer *costumer);
+int comp_date(Costumer *costumer_1, Costumer *costumer_2);
 void print();
 void free_all();
 void free_tree(BSTNode *root);
 void free_list(List *head);
 BSTNode *max_bst(BSTNode *root);
-Costumer *create_costumer_from_str(char *str, int line, char *error_msg);
-Costumer *create_comp_costumer(char *str, int index, char *error_msg);
-BSTNode *find_by_id(BSTNode *root, int id);
+Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg);
+Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg);
+BSTNode *find_by_id(BSTNode *root, unsigned int id);
 
 void create_list(FILE *file)
 {
     char buf[100];
-    int line = 0;
+   unsigned int line = 0;
     while (fgets(buf, sizeof(buf), file))
     {
         char error_msg[1024];
@@ -64,7 +61,7 @@ void create_list(FILE *file)
     print();
 }
 
-int create_costumer(char *str, int line, char *error_msg)
+int create_costumer(char *str,unsigned int line, char *error_msg)
 {
     Costumer *new = create_costumer_from_str(str, line, error_msg);
     if (new)
@@ -74,12 +71,13 @@ int create_costumer(char *str, int line, char *error_msg)
     return 1;
 }
 
-Costumer *create_costumer_from_str(char *str, int line, char *error_msg)
+Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
 {
     Costumer *new = calloc(1, sizeof(Costumer));
     if (!new)
     {
-        /* code */
+        perror("error creating new dept");
+        return NULL;
     }
 
     char line_str[30] = {0};
@@ -94,7 +92,7 @@ Costumer *create_costumer_from_str(char *str, int line, char *error_msg)
 
     char *value = strtok(str, ",");
     int column = 1;
-    while (value)
+    for (int i = 0; i < 6; i++)
     {
         remove_white_spaces(value);
         switch (column)
@@ -103,8 +101,13 @@ Costumer *create_costumer_from_str(char *str, int line, char *error_msg)
             if (valid_name(value))
             {
                 new->first_name = calloc(strlen(value) + 1, sizeof(char));
+                if (!new->first_name)
+                {
+                    perror("error creating first name");
+                    return NULL;
+                }
+
                 strcpy(new->first_name, value);
-                // new->first_name = value;
             }
             else
             {
@@ -116,8 +119,12 @@ Costumer *create_costumer_from_str(char *str, int line, char *error_msg)
             if (valid_name(value))
             {
                 new->last_name = calloc(strlen(value) + 1, sizeof(char));
+                if (!new->last_name)
+                {
+                    perror("error creating last name");
+                    return NULL;
+                }
                 strcpy(new->last_name, value);
-                // new->last_name = value;
             }
             else
             {
@@ -212,7 +219,10 @@ int add_new(Costumer *new, char *error_msg)
         delete_dept_bst(&sort_by_dept_root, list->costumer.dept, list->costumer.id);
         list->costumer.dept += new->dept;
         list->costumer.phone = new->phone;
-        list->costumer.date = new->date;
+        if (comp_date(&(list->costumer), new) < 0)
+        {
+            list->costumer.date = new->date;
+        }
 
         add_to_dept_BST(&sort_by_dept_root, list);
     free:
@@ -228,7 +238,8 @@ void add_dept_in_tail(Costumer *costumer)
     List *new = calloc(1, sizeof(List));
     if (!new)
     {
-        /* code */
+        perror("error creating new list");
+        return;
     }
 
     new->costumer = (*costumer);
@@ -253,7 +264,8 @@ void add_to_id_BST(BSTNode **id_root, List *list)
         *id_root = calloc(1, sizeof(BSTNode));
         if (!id_root)
         {
-            /* code */
+            perror("error creating new id_bst");
+            return;
         }
 
         (*id_root)->list = list;
@@ -277,6 +289,8 @@ void add_to_dept_BST(BSTNode **dept_root, List *list)
         *dept_root = calloc(1, sizeof(BSTNode));
         if (!dept_root)
         {
+            perror("error creating new dept_bst");
+            return;
         }
 
         (*dept_root)->list = list;
@@ -305,7 +319,7 @@ void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer))
     tree_in_order(root->right, do_something);
 }
 
-BSTNode *find_by_id(BSTNode *root, int id)
+BSTNode *find_by_id(BSTNode *root, unsigned int id)
 {
     if (!root)
     {
@@ -327,23 +341,25 @@ BSTNode *find_by_id(BSTNode *root, int id)
     }
 }
 
-char *compare_str(char *str, char *oper, int index, char *error_msg)
+char *compare_str(char *str, char *oper, unsigned int index, char *error_msg)
 {
     Costumer *new = create_comp_costumer(str, index, error_msg);
     if (new)
     {
-        return compare(new, oper);
+        char *ret = compare(new, oper);
+        free(new);
+        return ret;
     }
 }
 
-Costumer *create_comp_costumer(char *str, int index, char *error_msg)
+Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
 {
     Costumer *new = calloc(1, sizeof(Costumer));
     if (!new)
     {
-        // peeror
+        perror("error creating new dept to comp");
+        return NULL;
     }
-    int is_error = 0;
 
     switch (index)
     {
@@ -422,12 +438,18 @@ Costumer *create_comp_costumer(char *str, int index, char *error_msg)
 
 char *compare(Costumer *costumer, char *oper)
 {
-    char *arr = calloc(1, sizeof(char));
-    comp_in_tree(sort_by_dept_root, costumer, oper, arr);
+    char *arr = calloc(1,sizeof(char));
+    if (!arr)
+    {
+        perror("error creating arr");
+        return NULL;
+    }
+    
+    comp_in_tree(sort_by_dept_root, costumer, oper, &arr);
     return arr;
 }
 
-void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char *arr)
+void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char **arr)
 {
     if (!root)
     {
@@ -468,12 +490,12 @@ void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char *arr)
     comp_in_tree(root->right, costumer, oper, arr);
 }
 
-void add_to_arr(void *arr, Costumer *costumer)
+void add_to_arr(char **arr, Costumer *costumer)
 {
     unsigned int len = strlen(costumer->first_name) + strlen(costumer->last_name) + 40;
-    unsigned int curr = strlen(arr);
-    arr = realloc(arr, (curr + len) * sizeof(char));
-    stringify_costumer(costumer, (arr + curr), len, curr);
+    unsigned int curr = strlen(*arr);
+    *arr = realloc(*arr, (curr + len)  * sizeof(char));
+    stringify_costumer(costumer, (*arr + curr), len);
 }
 
 int comp_int(int first, int second)
@@ -494,12 +516,6 @@ int comp_int(int first, int second)
 
 void add_date(char *str, Costumer *costumer)
 {
-    // if (!str)
-    // {
-    //     return 0;
-    // }
-
-    int day, month, year;
     char *value = strtok(str, "/");
     int column = 1;
     while (value)
@@ -521,15 +537,12 @@ void add_date(char *str, Costumer *costumer)
         value = strtok(NULL, "/");
         column++;
     }
-    // return 1;
 }
 
 int func_to_comp(Costumer *root, Costumer *comp)
 {
     if (comp->first_name)
     {
-        // ?????
-        // return strstr(root->first_name, comp->first_name);
         return strcmp(root->first_name, comp->first_name);
     }
     else if (comp->last_name)
@@ -550,22 +563,27 @@ int func_to_comp(Costumer *root, Costumer *comp)
     }
     else if (comp->date.year)
     {
-        int year = comp_int(root->date.year, comp->date.year);
-        if (year)
+        return comp_date(root, comp);
+    }
+}
+
+int comp_date(Costumer *costumer_1, Costumer *costumer_2)
+{
+    int year = comp_int(costumer_1->date.year, costumer_2->date.year);
+    if (year)
+    {
+        return year;
+    }
+    else
+    {
+        int month = comp_int(costumer_1->date.month, costumer_2->date.month);
+        if (month)
         {
-            return year;
+            return month;
         }
         else
         {
-            int month = comp_int(root->date.month, comp->date.month);
-            if (month)
-            {
-                return month;
-            }
-            else
-            {
-                return comp_int(root->date.day, comp->date.day);
-            }
+            return comp_int(costumer_1->date.day, costumer_2->date.day);
         }
     }
 }
@@ -579,7 +597,7 @@ BSTNode *max_bst(BSTNode *root)
     return max_bst(root->right);
 }
 
-void delete_dept_bst(BSTNode **root, int dept, int id)
+void delete_dept_bst(BSTNode **root, int dept, unsigned int id)
 {
     if (*root == NULL)
     {

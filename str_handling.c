@@ -15,9 +15,17 @@ int is_not_only_char(char *str);
 
 void remove_white_spaces(char *str)
 {
-    int i = 0, j = 0;
-    // char new_str[len] = {0};
-    char *new_str = calloc(strlen(str)+1, sizeof(char));
+    unsigned int i = 0, j = 0;
+    if (!str)
+    {
+        return;
+    }
+    char *new_str = calloc(strlen(str) + 1, sizeof(char));
+    if (!new_str)
+    {
+        perror("error creating new str");
+        return;
+    }
 
     for (i = 0; str[i]; i++)
     {
@@ -30,9 +38,7 @@ void remove_white_spaces(char *str)
         }
         new_str[j++] = str[i];
     }
-    // free(&str);
-    // return new_str;
-
+    
     strcpy(str, new_str);
     free(new_str);
 }
@@ -65,7 +71,7 @@ int is_not_only_digit(char *str)
 
 void str_to_lower(char *str)
 {
-    int i = 0;
+    unsigned int i = 0;
     while (str[i])
     {
         if (str[i] >= 65 && str[i] <= 90)
@@ -142,16 +148,28 @@ int valid_date(char *str)
     {
         return 0;
     }
-    char *temp_str = str;
+    char *temp_str = calloc(strlen(str) + 1, sizeof(char));
+    if (!temp_str)
+    {
+        perror("error creating str for date test");
+        return 0;
+    }
 
-    int day, month, year;
+    strcpy(temp_str, str);
+
+    unsigned int day, month, year;
     char *value = strtok(temp_str, "/");
     int column = 1;
-    while (value)
+
+    for (int i = 0; i < 3; i++)
     {
+        if (!value)
+        {
+            goto exit;
+        }
         if (!is_not_only_digit(value))
         {
-            return 0;
+            goto exit;
         }
 
         switch (column)
@@ -160,41 +178,45 @@ int valid_date(char *str)
             day = atoi(value);
             if (day <= 0 || day > 31)
             {
-                return 0;
+                goto exit;
             }
             break;
         case 2:
             month = atoi(value);
             if (month <= 0 || month > 12)
             {
-                return 0;
+                goto exit;
             }
             break;
         case 3:
             year = atoi(value);
             if (year <= 1970 || year > 2100)
             {
-                return 0;
+                goto exit;
             }
             break;
         default:
-            return 0;
+            goto exit;
             break;
         }
         value = strtok(NULL, "/");
         column++;
     }
+    free(temp_str);
     return 1;
+exit:
+    free(temp_str);
+    return 0;
 }
-
-void stringify_costumer(Costumer *costumer, char *buf, unsigned int len, unsigned int curr)
+void stringify_costumer(Costumer *costumer, char *buf, unsigned int len)
 {
-    snprintf(buf, len, "%s, %s, %09d, 0%d, %d, %d/%d/%d\n", costumer->first_name, costumer->last_name,
-             costumer->id, costumer->phone, costumer->dept, costumer->date.year, costumer->date.month, costumer->date.day);
+    snprintf(buf, len, "%s, %s, %09d, 0%d, %d, %02d/%02d/%d\n", costumer->first_name, costumer->last_name,
+             costumer->id, costumer->phone, costumer->dept, costumer->date.day, costumer->date.month, costumer->date.year);
+    
 }
 
 void print_costumer(Costumer *costumer)
 {
-    printf("%s, %s, %09d, 0%d, %d, %d/%d/%d\n", costumer->first_name, costumer->last_name, costumer->id, costumer->phone,
-           costumer->dept, costumer->date.year, costumer->date.month, costumer->date.day);
+    printf("%s, %s, %09d, 0%d, %d, %02d/%02d/%d\n", costumer->first_name, costumer->last_name, costumer->id, costumer->phone,
+           costumer->dept, costumer->date.day, costumer->date.month, costumer->date.year);
 }
