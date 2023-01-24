@@ -13,13 +13,11 @@ const char *options_arr[] = {"select", "set"};
 
 int select_handling(char *str, char *error_msg);
 int set_handling(char *str, char *error_msg);
-Costumer *create_comp_costumer(char *str, int index);
 
 int user_str(char *str, char *error_msg)
 {
     str_to_lower(str);
-    str = remove_white_spaces(str, strlen(str) + 1);
-    int ret;
+    remove_white_spaces(str);
     for (int i = 0; i < ARR_LEN(options_arr); i++)
     {
         unsigned int len = strlen(options_arr[i]);
@@ -33,7 +31,7 @@ int user_str(char *str, char *error_msg)
                 break;
             case 1:
                 str += len;
-                return set_handling(str, error_str);
+                return set_handling(str, error_msg);
                 break;
             default:
                 sprintf(&(error_msg[strlen(error_msg)]), "invalid used. use: set / select / print only\n");
@@ -42,6 +40,7 @@ int user_str(char *str, char *error_msg)
             }
         }
     }
+    return 1;
 }
 
 int select_handling(char *str, char *error_msg)
@@ -90,8 +89,9 @@ int select_handling(char *str, char *error_msg)
         return 1;
     }
 
-    str = remove_white_spaces(str, strlen(str) + 1);
-    char *return_str = compare_2(str, i, error_msg);
+    remove_white_spaces(str);
+    char *return_str = compare_str(str, oper, i, error_msg);
+
     // its the real way???
     if (*error_msg)
     {
@@ -104,8 +104,9 @@ int select_handling(char *str, char *error_msg)
     }
     else
     {
-        printf("nothing found\n")
+        printf("nothing found\n");
     }
+    free(return_str);
 
     // Costumer *new = create_comp_costumer(str, i);
     // if (new)
@@ -132,7 +133,7 @@ int set_handling(char *str, char *error_msg)
         /* code */
     }
 
-    unsigned int curr = 0;
+    // unsigned int curr = 0;
     if (*str == '\n')
     {
         sprintf(&(error_msg[strlen(error_msg)]), "invalid value\n");
@@ -147,7 +148,7 @@ int set_handling(char *str, char *error_msg)
     char *value = strtok(str, ",\n");
     for (int i = 0; i < ARR_LEN(values_arr); i++)
     {
-        value = remove_white_spaces(value, strlen(value));
+        remove_white_spaces(value);
         unsigned int len = strlen(values_arr[i]);
         if (memcmp(value, values_arr[i], len))
         {

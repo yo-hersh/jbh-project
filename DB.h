@@ -21,25 +21,12 @@ typedef struct
     // char *date;
 } Costumer;
 
-typedef enum
-{
-    EQUAL,
-    NOT_EQUAL,
-    GREETER,
-    SMALLER
-} OPER_E;
 
 void create_list(FILE *file);
-// void compare(Costumer *costumer, void *arr, int *arr_length, OPER_E oper);
-typedef void*(*DO_FUNC)(Costumer *, void *);
-// void compere(Costumer *costumer,  BSTNode *root, OPER_E oper, DO_FUNC do_func);
-typedef void *(*DO_SOMETHING)(Costumer *);
-// void compere(Costumer *costumer, void *arr, BSTNode *root, int *arr_length, OPER_E oper);
-char *compare(Costumer *costumer, char *oper);
-int add_date(char *str, Costumer *costumer);
+// typedef void *(*DO_SOMETHING)(Costumer *);
+char *compare_str(char *str, char *oper, int index, char *error_msg);
 int create_costumer(char *str, int line, char *error_msg);
 void print();
-
-// void tree_in_order(BSTNode *root, void(*do_something)(Costumer *costumer))
+void free_all();
 
 #endif

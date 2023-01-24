@@ -2,6 +2,6 @@
 #define USERS_INPUT_H
 
 
-void user_str(char *str);
+int user_str(char *str, char *error_msg);
 
 #endif

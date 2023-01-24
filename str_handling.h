@@ -3,7 +3,7 @@
 
 #include "DB.h"
 
-char *remove_white_spaces(char *str, int len);
+void remove_white_spaces(char *str);
 void str_to_lower(char *str);
 int valid_date(char *str);
 int valid_dept(char *str);
