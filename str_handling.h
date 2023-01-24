@@ -1,0 +1,20 @@
+#ifndef STR_HANDLING_H
+#define STR_HANDLING_H
+
+#include "DB.h"
+
+char *remove_white_spaces(char *str, int len);
+void str_to_lower(char *str);
+int valid_date(char *str);
+int valid_dept(char *str);
+int valid_phone(char *str);
+int valid_id(char *str);
+int valid_name(char *str);
+int is_not_only_digit(char *str);
+int is_not_only_char(char *str);
+void stringify_costumer(Costumer *costumer, char *buf, unsigned int len, unsigned int curr);
+
+// char *stringify_costumer(Costumer *costumer);
+void print_costumer(Costumer *costumer);
+
+#endif

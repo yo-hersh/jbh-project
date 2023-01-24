@@ -1,14 +1,14 @@
-build: main.o str_handle.o user_manage.o DB.o
-	gcc -g main.o str_handle.o user_manage.o DB.o -o main
+build: main.o str_handling.o users_input.o DB.o
+	gcc -g main.o str_handling.o users_input.o DB.o -o main
 
 main.o: main.c
 	gcc -Wall -g -c main.c
 
-str_handle.o: str_handle.c
-	gcc -Wall -g -c str_handle.c
+str_handling.o: str_handling.c
+	gcc -Wall -g -c str_handling.c
 
-user_manage.o: user_manage.c
-	gcc -Wall -g -c user_manage.c
+users_input.o: users_input.c
+	gcc -Wall -g -c users_input.c
 
 DB.o: DB.c
 	gcc -Wall -g -c DB.c
