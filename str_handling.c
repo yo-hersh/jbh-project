@@ -208,6 +208,7 @@ exit:
     free(temp_str);
     return 0;
 }
+
 void stringify_costumer(Costumer *costumer, char *buf, unsigned int len)
 {
     snprintf(buf, len, "%s, %s, %09d, 0%d, %d, %02d/%02d/%d\n", costumer->first_name, costumer->last_name,

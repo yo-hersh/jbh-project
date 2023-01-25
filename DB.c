@@ -17,9 +17,9 @@ typedef struct _BSTNode
     struct _BSTNode *right, *left;
 } BSTNode;
 
-List *head = NULL, *tail = NULL;
-BSTNode *sort_by_id_root = NULL;
-BSTNode *sort_by_dept_root = NULL;
+static List *head = NULL, *tail = NULL;
+static BSTNode *sort_by_id_root = NULL;
+static BSTNode *sort_by_dept_root = NULL;
 
 int create_costumer(char *str,unsigned int line, char *error_msg);
 void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer));
