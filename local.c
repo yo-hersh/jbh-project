@@ -4,6 +4,8 @@
 #include "DB.h"
 #include "users_input.h"
 
+void print_to_stdin(int socket_id, char *str);
+
 int main(int argc, char const *argv[])
 {
 
@@ -11,7 +13,6 @@ int main(int argc, char const *argv[])
     char *select_help = "--select <value> <operation> <everything>.\n";
     char *set_help = "--set <value> = <everything>.\n";
     char *values_help = "--values: first name, last name, id, phone, dept, date.\n";
-    char error_msg[1024] = {0};
 
     if (argc < 2)
     {
@@ -26,11 +27,10 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
-    create_list(file);
+    create_list(file, print_to_stdin, 0);
     char buf[200] = {0};
     while (1)
     {
-        memset(error_msg, 0, sizeof(error_msg));
         printf("%s", display_option);
         fgets(buf, sizeof(buf), stdin);
         if (!strcmp(buf, "quit\n"))
@@ -39,11 +39,7 @@ int main(int argc, char const *argv[])
         }
         else if (!strcmp(buf, "print\n"))
         {
-            print();
-        }
-        else if (!strcmp(buf, "print --help\n"))
-        {
-            print();
+            print_all(print_to_stdin,0);
         }
         else if (!strcmp(buf, "set --help\n"))
         {
@@ -59,14 +55,9 @@ int main(int argc, char const *argv[])
             {
                 buf[strlen(buf) - 1] = '\0';
             }
-            int ret = 0;
             if (buf[0])
             {
-                ret = user_str(buf, error_msg);
-            }
-            if (ret)
-            {
-                printf("%s", error_msg);
+                user_str(buf, print_to_stdin, 0);
             }
         }
     }
@@ -74,4 +65,9 @@ int main(int argc, char const *argv[])
     printf("see you, let's have a nice day\n");
     free_all();
     return 0;
+}
+
+void print_to_stdin(int socket_id, char *str)
+{
+    printf("%s", str);
 }
