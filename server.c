@@ -38,11 +38,6 @@ int main(int argc, char **argv)
 
     create_list(file, print_to_stdin, 0);
 
-    /* Create a socket */
-    // AF_INET - IPv4
-    // SOCK_STREAM - tcp
-    // return the file director to the socket
-
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
     {
@@ -50,29 +45,22 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    /* Bind the socket to a specific port */
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    // ip (argv[i]) // INADDR_ANY - localhost
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    // serv_addr.sin_addr.s_addr = htonl(atoi(argv[2]));
-    // add the port
     serv_addr.sin_port = htons(atoi(argv[3]));
-    // bind the socket to the socket address
     if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         perror("Error binding socket");
         return 1;
     }
 
-    // allow five socket in the connection
     if (listen(sockfd, 5) < 0)
     {
         perror("Error listening");
         return 1;
     }
 
-    /* Receive data from clients */
     while (1)
     {
         pthread_t tid;
@@ -95,7 +83,6 @@ void *conn_handler(void *args)
 {
     char buffer[MAX_LEN] = {0};
     int new_sock = (int)args;
-    // char *sending = NULL;
     int n, r = 0;
 
     do
