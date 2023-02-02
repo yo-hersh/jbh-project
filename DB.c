@@ -20,58 +20,65 @@ typedef struct _BSTNode
 static List *head = NULL, *tail = NULL;
 static BSTNode *sort_by_id_root = NULL;
 static BSTNode *sort_by_dept_root = NULL;
+void compare(Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
+void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
 
-int create_costumer(char *str,unsigned int line, char *error_msg);
-void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer));
-int add_new(Costumer *new, char *error_msg);
+int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
+void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void *func, void *arg), void *func, void *arg);
+int add_new(Costumer *new, PRINT_HANDLING print, int print_to);
 void add_to_id_BST(BSTNode **root, List *list);
 void add_to_dept_BST(BSTNode **root, List *list);
 void add_dept_in_tail(Costumer *costumer);
-char *compare_str(char *str, char *oper, unsigned int index, char *error_msg);
-char *compare(Costumer *costumer, char *oper);
+void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
+
+// char *compare_str(char *str, char *oper, unsigned int index, char *error_msg);
+// char *compare(Costumer *costumer, char *oper);
 int func_to_comp(Costumer *root, Costumer *costumer);
-void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char **arr);
+// void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char **arr);
 void add_date(char *str, Costumer *costumer);
 void delete_dept_bst(BSTNode **root, int dept, unsigned int id);
-void add_to_arr(char **arr, Costumer *costumer);
+// void add_to_arr(char **arr, Costumer *costumer);
 int comp_date(Costumer *costumer_1, Costumer *costumer_2);
-void print();
+// void print();
 void free_all();
 void free_tree(BSTNode *root);
 void free_list(List *head);
 BSTNode *max_bst(BSTNode *root);
-Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg);
-Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg);
+Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
+Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING print, int print_to);
+// Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg);
 BSTNode *find_by_id(BSTNode *root, unsigned int id);
 
-void create_list(FILE *file)
+void create_list(FILE *file, PRINT_HANDLING print, int print_to)
 {
     char buf[100];
-   unsigned int line = 0;
+    unsigned int line = 0;
     while (fgets(buf, sizeof(buf), file))
     {
-        char error_msg[1024];
-        int ret = create_costumer(buf, ++line, error_msg);
-        if (ret)
-        {
-            printf("%s", error_msg);
-        }
+        // char error_msg[1024];
+        create_costumer(buf, ++line, print, print_to);
+        // int ret =
+        // if (ret)
+        // {
+        // printf("%s", error_msg);
+        // }
     }
     fclose(file);
-    print();
+    // print();
+    print_all(print, print_to);
 }
 
-int create_costumer(char *str,unsigned int line, char *error_msg)
+int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to)
 {
-    Costumer *new = create_costumer_from_str(str, line, error_msg);
+    Costumer *new = create_costumer_from_str(str, line, print, print_to);
     if (new)
     {
-        return add_new(new, error_msg);
+        return add_new(new, print, print_to);
     }
     return 1;
 }
 
-Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
+Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to)
 {
     Costumer *new = calloc(1, sizeof(Costumer));
     if (!new)
@@ -80,7 +87,7 @@ Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
         return NULL;
     }
 
-    char line_str[30] = {0};
+    char line_str[30] = {0}, error_msg[200] = {0};
     if (line)
     {
         sprintf(&(line_str[0]), "error line %d: ", line);
@@ -111,7 +118,8 @@ Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
             }
             else
             {
-                sprintf(&(error_msg[strlen(error_msg)]), "%sfirst name must have only char, last tow\n", line_str);
+                sprintf((error_msg), "%sfirst name must have only char, last tow\n", line_str);
+                print(print_to, error_msg);
                 is_error = 1;
             }
             break;
@@ -128,7 +136,8 @@ Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
             }
             else
             {
-                sprintf(&(error_msg[strlen(error_msg)]), "%slast name must have only char, last tow\n", line_str);
+                sprintf((error_msg), "%slast name must have only char, last tow\n", line_str);
+                print(print_to, error_msg);
                 is_error = 1;
             }
             break;
@@ -139,7 +148,8 @@ Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
             }
             else
             {
-                sprintf(&(error_msg[strlen(error_msg)]), "%sid must have only 9 digits\n", line_str);
+                sprintf((error_msg), "%sid must have only 9 digits\n", line_str);
+                print(print_to, error_msg);
                 is_error = 1;
             }
             break;
@@ -150,7 +160,8 @@ Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
             }
             else
             {
-                sprintf(&(error_msg[strlen(error_msg)]), "%sphone must have only 10 digits, start by 0\n", line_str);
+                sprintf((error_msg), "%sphone must have only 10 digits, start by 0\n", line_str);
+                print(print_to, error_msg);
                 is_error = 1;
             }
             break;
@@ -161,7 +172,8 @@ Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
             }
             else
             {
-                sprintf(&(error_msg[strlen(error_msg)]), "%sdept must have digits only\n", line_str);
+                sprintf((error_msg), "%sdept must have digits only\n", line_str);
+                print(print_to, error_msg);
                 is_error = 1;
             }
             break;
@@ -172,7 +184,8 @@ Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
             }
             else
             {
-                sprintf(&(error_msg[strlen(error_msg)]), "%sdate must by dd/mm/yyyy between 1970-2100\n", line_str);
+                sprintf((error_msg), "%sdate must by dd/mm/yyyy between 1970-2100\n", line_str);
+                print(print_to, error_msg);
                 is_error = 1;
             }
             break;
@@ -188,7 +201,7 @@ Costumer *create_costumer_from_str(char *str,unsigned int line, char *error_msg)
     return new;
 }
 
-int add_new(Costumer *new, char *error_msg)
+int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
 {
     int ret = 0;
     BSTNode *found = find_by_id(sort_by_id_root, new->id);
@@ -203,14 +216,14 @@ int add_new(Costumer *new, char *error_msg)
     {
         if (strcmp(found->list->costumer.first_name, new->first_name))
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "first name is not equal to the name in the DB\n");
+            print(print_to, "first name is not equal to the name in the DB\n");
             ret = 1;
             goto free;
         }
 
         if (strcmp(found->list->costumer.last_name, new->last_name))
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "last name is not equal to the name in the DB\n");
+            print(print_to, "last name is not equal to the name in the DB\n");
             ret = 1;
             goto free;
         }
@@ -307,16 +320,16 @@ void add_to_dept_BST(BSTNode **dept_root, List *list)
     }
 }
 
-void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer))
+void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void *func, void *arg), void *func, void *arg)
 {
     if (!root)
     {
         return;
     }
 
-    tree_in_order(root->left, do_something);
-    do_something(&(root->list->costumer));
-    tree_in_order(root->right, do_something);
+    tree_in_order(root->left, do_something, func, arg);
+    do_something(&(root->list->costumer), func, arg);
+    tree_in_order(root->right, do_something, func, arg);
 }
 
 BSTNode *find_by_id(BSTNode *root, unsigned int id)
@@ -341,18 +354,18 @@ BSTNode *find_by_id(BSTNode *root, unsigned int id)
     }
 }
 
-char *compare_str(char *str, char *oper, unsigned int index, char *error_msg)
+void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to)
 {
-    Costumer *new = create_comp_costumer(str, index, error_msg);
+    Costumer *new = create_comp_costumer(str, index, print, print_to);
     if (new)
     {
-        char *ret = compare(new, oper);
+        compare(new, oper, print, print_to);
         free(new);
-        return ret;
+        // return ret;
     }
 }
 
-Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
+Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING print, int print_to)
 {
     Costumer *new = calloc(1, sizeof(Costumer));
     if (!new)
@@ -370,7 +383,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
         }
         else
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "first name must have only char, last tow\n");
+            print(print_to, "first name must have only char, last tow\n");
             return NULL;
         }
         break;
@@ -381,7 +394,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
         }
         else
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "last name must have only char, last tow\n");
+            print(print_to, "last name must have only char, last tow\n");
             return NULL;
         }
         break;
@@ -392,7 +405,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
         }
         else
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "id must have 9 digit\n");
+            print(print_to, "id must have 9 digit\n");
             return NULL;
         }
         break;
@@ -403,7 +416,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
         }
         else
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "phone most have 10 char, starting by 0\n");
+            print(print_to, "phone most have 10 char, starting by 0\n");
             return NULL;
         }
         break;
@@ -414,7 +427,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
         }
         else
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "dept must have only digit\n");
+            print(print_to, "dept must have only digit\n");
             return NULL;
         }
         break;
@@ -425,7 +438,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
         }
         else
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "date must by dd/mm/yyyy between 1970-2100\n");
+            print(print_to, "date must by dd/mm/yyyy between 1970-2100\n");
             return NULL;
         }
         break;
@@ -436,66 +449,57 @@ Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg)
     return new;
 }
 
-char *compare(Costumer *costumer, char *oper)
+void compare(Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
 {
-    char *arr = calloc(1,sizeof(char));
-    if (!arr)
-    {
-        perror("error creating arr");
-        return NULL;
-    }
-    
-    comp_in_tree(sort_by_dept_root, costumer, oper, &arr);
-    return arr;
+    // char *arr = calloc(1, sizeof(char));
+    // if (!arr)
+    // {
+    // perror("error creating arr");
+    // return NULL;
+    // }
+
+    comp_in_tree(sort_by_dept_root, costumer, oper, print, print_to);
 }
 
-void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char **arr)
+void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
 {
     if (!root)
     {
         return;
     }
 
-    comp_in_tree(root->left, costumer, oper, arr);
+    comp_in_tree(root->left, costumer, oper, print, print_to);
     int ret = func_to_comp(&(root->list->costumer), costumer);
     if (strstr(oper, ">"))
     {
         if (ret > 0)
         {
-            add_to_arr(arr, &(root->list->costumer));
+            print_costumer(&(root->list->costumer), print, print_to);
         }
     }
     else if (strstr(oper, "<"))
     {
         if (ret < 0)
         {
-            add_to_arr(arr, &(root->list->costumer));
+            print_costumer(&(root->list->costumer), print, print_to);
         }
     }
     else if (strstr(oper, "!="))
     {
         if (ret != 0)
         {
-            add_to_arr(arr, &(root->list->costumer));
+            print_costumer(&(root->list->costumer), print, print_to);
         }
     }
     else if (strstr(oper, "="))
     {
         if (ret == 0)
         {
-            add_to_arr(arr, &(root->list->costumer));
+            print_costumer(&(root->list->costumer), print, print_to);
         }
     }
 
-    comp_in_tree(root->right, costumer, oper, arr);
-}
-
-void add_to_arr(char **arr, Costumer *costumer)
-{
-    unsigned int len = strlen(costumer->first_name) + strlen(costumer->last_name) + 40;
-    unsigned int curr = strlen(*arr);
-    *arr = realloc(*arr, (curr + len)  * sizeof(char));
-    stringify_costumer(costumer, (*arr + curr), len);
+    comp_in_tree(root->right, costumer, oper, print, print_to);
 }
 
 int comp_int(int first, int second)
@@ -637,10 +641,13 @@ void delete_dept_bst(BSTNode **root, int dept, unsigned int id)
     }
 }
 
-void print()
+void print_all(PRINT_HANDLING print, int print_to)
 {
-    tree_in_order(sort_by_dept_root, print_costumer);
+
+    tree_in_order(sort_by_dept_root, print_costumer, (void *)print, (void *)print_to);
 }
+
+// print_costumer
 
 void free_all()
 {

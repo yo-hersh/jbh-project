@@ -20,10 +20,10 @@ typedef struct
 } Costumer;
 typedef void (*PRINT_HANDLING)(int, char *);
 
-void create_list(FILE *file);
-char *compare_str(char *str, char *oper, unsigned int index, char *error_msg);
-int create_costumer(char *str, unsigned int line, char *error_msg);
-void print();
+void create_list(FILE *file,PRINT_HANDLING print, int print_to);
+void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
+int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
+void print_all(PRINT_HANDLING print, int print_to);
 void free_all();
 
 #endif
