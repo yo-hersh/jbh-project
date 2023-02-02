@@ -38,7 +38,6 @@ void remove_white_spaces(char *str)
         }
         new_str[j++] = str[i];
     }
-    
     strcpy(str, new_str);
     free(new_str);
 }
@@ -209,15 +208,17 @@ exit:
     return 0;
 }
 
-void stringify_costumer(Costumer *costumer, char *buf, unsigned int len)
+void stringify_costumer(Costumer *costumer, char *str,unsigned int len)
 {
-    snprintf(buf, len, "%s, %s, %09d, 0%d, %d, %02d/%02d/%d\n", costumer->first_name, costumer->last_name,
+    snprintf(str, len, "%s, %s, %09d, 0%d, %d, %02d/%02d/%d\n", costumer->first_name, costumer->last_name,
              costumer->id, costumer->phone, costumer->dept, costumer->date.day, costumer->date.month, costumer->date.year);
-    
 }
 
-void print_costumer(Costumer *costumer)
+void print_costumer(Costumer *costumer, PRINT_HANDLING print, int print_to)
 {
-    printf("%s, %s, %09d, 0%d, %d, %02d/%02d/%d\n", costumer->first_name, costumer->last_name, costumer->id, costumer->phone,
-           costumer->dept, costumer->date.day, costumer->date.month, costumer->date.year);
+    unsigned int len = strlen(costumer->first_name) + strlen(costumer->last_name) + 50;
+    char *str = malloc(len * sizeof(char));
+    stringify_costumer(costumer, str, len);
+    print(print_to, str);
+    free(str);
 }
