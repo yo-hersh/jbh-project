@@ -18,6 +18,7 @@ typedef struct
     int dept;
     Date date;
 } Costumer;
+typedef void (*PRINT_HANDLING)(int, char *);
 
 void create_list(FILE *file);
 char *compare_str(char *str, char *oper, unsigned int index, char *error_msg);
