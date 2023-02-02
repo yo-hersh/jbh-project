@@ -11,12 +11,11 @@ const char *values_arr[] = {"first name", "last name", "id", "phone", "dept", "d
 const char *oper_arr[] = {">", "<", "!=", "="};
 const char *options_arr[] = {"select", "set"};
 
-int select_handling(char *str, char *error_msg);
-int set_handling(char *str, char *error_msg);
+void select_handling(char *str, PRINT_HANDLING print, int print_to);
+void set_handling(char *str, PRINT_HANDLING print, int print_to);
 
-int user_str(char *str, char *error_msg)
+void user_str(char *str, PRINT_HANDLING print, int print_to)
 {
-    int ret = 0;
     str_to_lower(str);
     remove_white_spaces(str);
     for (int i = 0; i < ARR_LEN(options_arr); i++)
@@ -28,28 +27,21 @@ int user_str(char *str, char *error_msg)
             {
             case 0:
                 str += len;
-                return select_handling(str, error_msg);
+                select_handling(str, print, print_to);
                 break;
             case 1:
                 str += len;
-                ret = set_handling(str, error_msg);
-                if (!ret)
-                {
-                    printf("created successfully");
-                }
-                return ret;
+                set_handling(str, print, print_to);
                 break;
             default:
-                sprintf(&(error_msg[strlen(error_msg)]), "invalid used. use: set / select / print only\n");
-                return 1;
+                print(print_to, "invalid used. use: set / select / print only\n");
                 break;
             }
         }
     }
-    return 1;
 }
 
-int select_handling(char *str, char *error_msg)
+void select_handling(char *str, PRINT_HANDLING print, int print_to)
 {
     char value[10] = {0}, oper[3] = {0};
     int i;
@@ -70,8 +62,8 @@ int select_handling(char *str, char *error_msg)
     }
     if (i == ARR_LEN(values_arr))
     {
-        sprintf(&(error_msg[strlen(error_msg)]), "use one of the given values only\n");
-        return 1;
+        print(print_to, "use one of the given values only\n");
+        return;
     }
 
     if (*str == ' ')
@@ -91,42 +83,28 @@ int select_handling(char *str, char *error_msg)
     }
     if (j == ARR_LEN(oper_arr))
     {
-        sprintf(&(error_msg[strlen(error_msg)]), "used oper: = != < > only\n");
-        return 1;
+        print(print_to, "used oper: = != < > only\n");
+        return;
     }
 
     remove_white_spaces(str);
-    char *return_str = compare_str(str, oper, i, error_msg);
+    compare_str(str, oper, i, print, print_to);
 
-    if (*error_msg)
-    {
-        return 1;
-    }
-
-    if (return_str)
-    {
-        printf("found:\n%s", return_str);
-    }
-    else
-    {
-        printf("nothing found\n");
-    }
-
-    return 0;
+    return;
 }
 
-int set_handling(char *str, char *error_msg)
+void set_handling(char *str, PRINT_HANDLING print, int print_to)
 {
     char *values = calloc(1, strlen(str) * sizeof(char));
     if (!values)
     {
         perror("error creating values str");
-        return 1;
+        return;
     }
 
     if (*str == '\n')
     {
-        sprintf(&(error_msg[strlen(error_msg)]), "invalid value\n");
+        print(print_to, "invalid value\n");
         goto exit;
     }
 
@@ -136,13 +114,14 @@ int set_handling(char *str, char *error_msg)
     }
 
     char *value = strtok(str, ",\n");
-    int i = 0;
+    char error_msg[50] = {0};
 
     for (int i = 0; i < ARR_LEN(values_arr); i++)
     {
         if (!value)
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "value <%s> dont found\n", values_arr[i]);
+            sprintf(error_msg, "value <%s> dont found\n", values_arr[i]);
+            print(print_to, error_msg);
             goto exit;
         }
 
@@ -150,14 +129,16 @@ int set_handling(char *str, char *error_msg)
         unsigned int len = strlen(values_arr[i]);
         if (memcmp(value, values_arr[i], len))
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "value <%s> dont found\n", values_arr[i]);
+            sprintf((error_msg), "value <%s> dont found\n", values_arr[i]);
+            print(print_to, error_msg);
             goto exit;
         }
         value += len;
 
         if (*value != '=')
         {
-            sprintf(&(error_msg[strlen(error_msg)]), "invalid operation\n");
+            sprintf((error_msg), "invalid operation\n");
+            print(print_to, error_msg);
             goto exit;
         }
 
@@ -168,10 +149,10 @@ int set_handling(char *str, char *error_msg)
         value = strtok(NULL, ",\n");
     }
 
-    int ret = create_costumer(values, 0, error_msg);
+    create_costumer(values, 0, print, print_to);
     free(values);
-    return ret;
+    return;
 exit:
     free(values);
-    return 1;
+    return;
 }
