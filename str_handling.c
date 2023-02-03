@@ -208,15 +208,15 @@ exit:
     return 0;
 }
 
-void stringify_costumer(Costumer *costumer, char *str,unsigned int len)
+void stringify_costumer(Costumer *costumer, char *str, unsigned int len)
 {
-    snprintf(str, len, "%s, %s, %09d, 0%d, %d, %02d/%02d/%d\n", costumer->first_name, costumer->last_name,
-             costumer->id, costumer->phone, costumer->dept, costumer->date.day, costumer->date.month, costumer->date.year);
+    snprintf(str, len, "%s, %s, %09d, 0%d, %02d/%02d/%d, %d\n", costumer->first_name, costumer->second_name,
+             costumer->id, costumer->phone, costumer->date.day, costumer->date.month, costumer->date.year, costumer->dept);
 }
 
 void print_costumer(Costumer *costumer, PRINT_HANDLING print, int print_to)
 {
-    unsigned int len = strlen(costumer->first_name) + strlen(costumer->last_name) + 50;
+    unsigned int len = strlen(costumer->first_name) + strlen(costumer->second_name) + 50;
     char *str = malloc(len * sizeof(char));
     stringify_costumer(costumer, str, len);
     print(print_to, str);

@@ -12,11 +12,11 @@ typedef struct
 typedef struct
 {
     char *first_name;
-    char *last_name;
+    char *second_name;
     unsigned int id;
     unsigned int phone;
-    int dept;
     Date date;
+    int dept;
 } Costumer;
 typedef void (*PRINT_HANDLING)(int, char *);
 

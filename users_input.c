@@ -7,7 +7,7 @@
 
 #define ARR_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 
-const char *values_arr[] = {"first name", "last name", "id", "phone", "dept", "date"};
+const char *values_arr[] = {"first name", "last name", "id", "phone", "date", "dept"};
 const char *oper_arr[] = {">", "<", "!=", "="};
 const char *options_arr[] = {"select", "set"};
 
@@ -150,8 +150,8 @@ void set_handling(char *str, PRINT_HANDLING print, int print_to)
     }
 
     create_costumer(values, 0, print, print_to);
-    free(values);
-    return;
+    // free(values);
+    // return;
 exit:
     free(values);
     return;

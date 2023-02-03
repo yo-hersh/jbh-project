@@ -4,7 +4,6 @@
 #include "DB.h"
 #include "str_handling.h"
 
-
 typedef struct _List
 {
     Costumer costumer;
@@ -20,9 +19,8 @@ typedef struct _BSTNode
 static List *head = NULL, *tail = NULL;
 static BSTNode *sort_by_id_root = NULL;
 static BSTNode *sort_by_dept_root = NULL;
-void compare(Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
-void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
 
+void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
 int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void *func, void *arg), void *func, void *arg);
 int add_new(Costumer *new, PRINT_HANDLING print, int print_to);
@@ -30,41 +28,27 @@ void add_to_id_BST(BSTNode **root, List *list);
 void add_to_dept_BST(BSTNode **root, List *list);
 void add_dept_in_tail(Costumer *costumer);
 void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
-
-// char *compare_str(char *str, char *oper, unsigned int index, char *error_msg);
-// char *compare(Costumer *costumer, char *oper);
-int func_to_comp(Costumer *root, Costumer *costumer);
-// void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, char **arr);
+int comp_values(Costumer *root, Costumer *costumer);
 void add_date(char *str, Costumer *costumer);
 void delete_dept_bst(BSTNode **root, int dept, unsigned int id);
-// void add_to_arr(char **arr, Costumer *costumer);
 int comp_date(Costumer *costumer_1, Costumer *costumer_2);
-// void print();
 void free_all();
 void free_tree(BSTNode *root);
 void free_list(List *head);
 BSTNode *max_bst(BSTNode *root);
 Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING print, int print_to);
-// Costumer *create_comp_costumer(char *str, unsigned int index, char *error_msg);
 BSTNode *find_by_id(BSTNode *root, unsigned int id);
 
 void create_list(FILE *file, PRINT_HANDLING print, int print_to)
 {
-    char buf[100];
+    char buf[1024];
     unsigned int line = 0;
     while (fgets(buf, sizeof(buf), file))
     {
-        // char error_msg[1024];
         create_costumer(buf, ++line, print, print_to);
-        // int ret =
-        // if (ret)
-        // {
-        // printf("%s", error_msg);
-        // }
     }
     fclose(file);
-    // print();
     print_all(print, print_to);
 }
 
@@ -126,17 +110,17 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
         case 2:
             if (valid_name(value))
             {
-                new->last_name = calloc(strlen(value) + 1, sizeof(char));
-                if (!new->last_name)
+                new->second_name = calloc(strlen(value) + 1, sizeof(char));
+                if (!new->second_name)
                 {
                     perror("error creating last name");
                     return NULL;
                 }
-                strcpy(new->last_name, value);
+                strcpy(new->second_name, value);
             }
             else
             {
-                sprintf((error_msg), "%slast name must have only char, last tow\n", line_str);
+                sprintf((error_msg), "%ssecond name must have only char, last tow\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
@@ -166,18 +150,6 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             break;
         case 5:
-            if (valid_dept(value))
-            {
-                new->dept = atoi(value);
-            }
-            else
-            {
-                sprintf((error_msg), "%sdept must have digits only\n", line_str);
-                print(print_to, error_msg);
-                is_error = 1;
-            }
-            break;
-        case 6:
             if (valid_date(value))
             {
                 add_date(value, new);
@@ -185,6 +157,18 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             else
             {
                 sprintf((error_msg), "%sdate must by dd/mm/yyyy between 1970-2100\n", line_str);
+                print(print_to, error_msg);
+                is_error = 1;
+            }
+            break;
+        case 6:
+            if (valid_dept(value))
+            {
+                new->dept = atoi(value);
+            }
+            else
+            {
+                sprintf((error_msg), "%sdept must have digits only\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
@@ -221,9 +205,9 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
             goto free;
         }
 
-        if (strcmp(found->list->costumer.last_name, new->last_name))
+        if (strcmp(found->list->costumer.second_name, new->second_name))
         {
-            print(print_to, "last name is not equal to the name in the DB\n");
+            print(print_to, "second name is not equal to the name in the DB\n");
             ret = 1;
             goto free;
         }
@@ -240,7 +224,7 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
         add_to_dept_BST(&sort_by_dept_root, list);
     free:
         free(new->first_name);
-        free(new->last_name);
+        free(new->second_name);
         free(new);
     }
     return ret;
@@ -285,7 +269,7 @@ void add_to_id_BST(BSTNode **id_root, List *list)
         return;
     }
 
-    if ((*id_root)->list->costumer.id > list->costumer.id)
+    if (list->costumer.id <= (*id_root)->list->costumer.id)
     {
         add_to_id_BST(&((*id_root)->left), list);
     }
@@ -310,7 +294,7 @@ void add_to_dept_BST(BSTNode **dept_root, List *list)
         return;
     }
 
-    if ((*dept_root)->list->costumer.dept > list->costumer.dept)
+    if (list->costumer.dept <= (*dept_root)->list->costumer.dept)
     {
         add_to_dept_BST(&((*dept_root)->left), list);
     }
@@ -359,9 +343,9 @@ void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print
     Costumer *new = create_comp_costumer(str, index, print, print_to);
     if (new)
     {
-        compare(new, oper, print, print_to);
+        comp_in_tree(sort_by_dept_root, new, oper, print, print_to);
+        // compare(new, oper, print, print_to);
         free(new);
-        // return ret;
     }
 }
 
@@ -390,11 +374,11 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
     case 1:
         if (valid_name(str))
         {
-            new->last_name = str;
+            new->second_name = str;
         }
         else
         {
-            print(print_to, "last name must have only char, last tow\n");
+            print(print_to, "second name must have only char, last tow\n");
             return NULL;
         }
         break;
@@ -421,17 +405,6 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         }
         break;
     case 4:
-        if (valid_dept(str))
-        {
-            new->dept = atoi(str);
-        }
-        else
-        {
-            print(print_to, "dept must have only digit\n");
-            return NULL;
-        }
-        break;
-    case 5:
         if (valid_date(str))
         {
             add_date(str, new);
@@ -442,6 +415,17 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
             return NULL;
         }
         break;
+    case 5:
+        if (valid_dept(str))
+        {
+            new->dept = atoi(str);
+        }
+        else
+        {
+            print(print_to, "dept must have only digit\n");
+            return NULL;
+        }
+        break;
     default:
         return NULL;
     }
@@ -449,17 +433,10 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
     return new;
 }
 
-void compare(Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
-{
-    // char *arr = calloc(1, sizeof(char));
-    // if (!arr)
-    // {
-    // perror("error creating arr");
-    // return NULL;
-    // }
-
-    comp_in_tree(sort_by_dept_root, costumer, oper, print, print_to);
-}
+// void compare(Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
+// {
+//     comp_in_tree(sort_by_dept_root, costumer, oper, print, print_to);
+// }
 
 void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
 {
@@ -469,7 +446,7 @@ void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING 
     }
 
     comp_in_tree(root->left, costumer, oper, print, print_to);
-    int ret = func_to_comp(&(root->list->costumer), costumer);
+    int ret = comp_values(&(root->list->costumer), costumer);
     if (strstr(oper, ">"))
     {
         if (ret > 0)
@@ -543,15 +520,15 @@ void add_date(char *str, Costumer *costumer)
     }
 }
 
-int func_to_comp(Costumer *root, Costumer *comp)
+int comp_values(Costumer *root, Costumer *comp)
 {
     if (comp->first_name)
     {
         return strcmp(root->first_name, comp->first_name);
     }
-    else if (comp->last_name)
+    else if (comp->second_name)
     {
-        return strcmp(root->last_name, comp->last_name);
+        return strcmp(root->second_name, comp->second_name);
     }
     else if (comp->id)
     {
@@ -630,7 +607,7 @@ void delete_dept_bst(BSTNode **root, int dept, unsigned int id)
     }
     else
     {
-        if ((*root)->list->costumer.dept > dept)
+        if (dept <= (*root)->list->costumer.dept)
         {
             delete_dept_bst(&((*root)->left), dept, id);
         }
@@ -646,8 +623,6 @@ void print_all(PRINT_HANDLING print, int print_to)
 
     tree_in_order(sort_by_dept_root, print_costumer, (void *)print, (void *)print_to);
 }
-
-// print_costumer
 
 void free_all()
 {
@@ -673,7 +648,7 @@ void free_list(List *head)
     {
         List *temp = head->next;
         free(head->costumer.first_name);
-        free(head->costumer.last_name);
+        free(head->costumer.second_name);
         free(head);
         head = temp;
     }

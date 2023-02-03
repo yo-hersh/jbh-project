@@ -10,10 +10,10 @@
 
 int main(int argc, char **argv)
 {
-    char *display_option = "\n--please select option: set <value> / select <value> / print\n--use <option> --help to see more\n--type quit to exit\n";
+    char *display_option = "--please select options: set <value> / select <value> / print\n--use <option> --help to see more\n--type quit to exit\n";
     char *select_help = "--select <value> <operation> <everything>.\n";
     char *set_help = "--set <value> = <everything>.\n";
-    char *values_help = "--values: first name, last name, id, phone, dept, date.\n";
+    char *values_help = "--values: first name, last name, id, phone, date, dept.\n";
     char *massage = "--Enter a 5 messages, to send it enter send. for options enter halp\n";
 
     int sockfd[5];
@@ -38,11 +38,19 @@ int main(int argc, char **argv)
     {
         char temp_buf[MAX_LEN];
         fgets(temp_buf, MAX_LEN, stdin);
-        if (!strcmp(temp_buf, "halp"))
+        if (!strcmp(temp_buf, "halp\n"))
         {
-            // help_msg()
+            printf("%s", display_option);
         }
-        if (!strcmp(temp_buf, "quit\n"))
+        else if (!strcmp(temp_buf, "select --help\n"))
+        {
+            printf("%s%s", select_help, values_help);
+        }
+        else if (!strcmp(temp_buf, "set --help\n"))
+        {
+            printf("%s%s", set_help, values_help);
+        }
+        else if (!strcmp(temp_buf, "quit\n"))
         {
             puts("see you, lets have a nice day");
             return 0;
@@ -51,8 +59,7 @@ int main(int argc, char **argv)
         {
             break;
         }
-
-        if (i < 5)
+        else if (i < 5)
         {
             strcpy(buffer[i++], temp_buf);
         }
