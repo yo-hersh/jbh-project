@@ -97,6 +97,7 @@ void *conn_handler(void *args)
     } while (n > 0);
     remove_white_spaces(buffer);
 
+
     buffer[r] = '\0';
     if (strlen(buffer) == 0)
     {

@@ -147,26 +147,24 @@ int valid_date(char *str)
     {
         return 0;
     }
+
     char *temp_str = calloc(strlen(str) + 1, sizeof(char));
     if (!temp_str)
     {
         perror("error creating str for date test");
         return 0;
     }
+    char *ptr;
 
     strcpy(temp_str, str);
 
     unsigned int day, month, year;
-    char *value = strtok(temp_str, "/");
+    char *value = strtok_r(temp_str, "/", &ptr);
     int column = 1;
 
     for (int i = 0; i < 3; i++)
     {
-        if (!value)
-        {
-            goto exit;
-        }
-        if (!is_not_only_digit(value))
+        if (!value || !is_not_only_digit(value))
         {
             goto exit;
         }
@@ -198,8 +196,12 @@ int valid_date(char *str)
             goto exit;
             break;
         }
-        value = strtok(NULL, "/");
+        value = strtok_r(NULL, "/",&ptr);
         column++;
+    }
+    if (value)
+    {
+        goto exit;
     }
     free(temp_str);
     return 1;
@@ -218,6 +220,11 @@ void print_costumer(Costumer *costumer, PRINT_HANDLING print, int print_to)
 {
     unsigned int len = strlen(costumer->first_name) + strlen(costumer->second_name) + 50;
     char *str = malloc(len * sizeof(char));
+    if (!str)
+        {
+            perror("error creating stringy costumer");
+            return;
+        }
     stringify_costumer(costumer, str, len);
     print(print_to, str);
     free(str);

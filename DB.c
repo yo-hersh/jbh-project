@@ -46,6 +46,10 @@ void create_list(FILE *file, PRINT_HANDLING print, int print_to)
     unsigned int line = 0;
     while (fgets(buf, sizeof(buf), file))
     {
+        if (buf[strlen(buf) - 1] == '\n')
+        {
+            buf[strlen(buf) - 1] = '\0';
+        }
         create_costumer(buf, ++line, print, print_to);
     }
     fclose(file);
@@ -77,13 +81,14 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
         sprintf(&(line_str[0]), "error line %d: ", line);
     }
 
-    int is_error = 0;
     str_to_lower(str);
     remove_white_spaces(str);
+    
+    char *value;
+    value = strtok(str, ",");
 
-    char *value = strtok(str, ",");
-    int column = 1;
-    for (int i = 0; i < 6; i++)
+    int is_error = 0, column = 1;
+    for (int i = 0; i < 6 ; i++)
     {
         remove_white_spaces(value);
         switch (column)
@@ -102,7 +107,7 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             else
             {
-                sprintf((error_msg), "%sfirst name must have only char, last tow\n", line_str);
+                sprintf((error_msg), "%sfirst name required to be letters only, at least 2\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
@@ -120,7 +125,7 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             else
             {
-                sprintf((error_msg), "%ssecond name must have only char, last tow\n", line_str);
+                sprintf((error_msg), "%ssecond name required to be letters only, at least 2\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
@@ -132,7 +137,7 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             else
             {
-                sprintf((error_msg), "%sid must have only 9 digits\n", line_str);
+                sprintf((error_msg), "%sid required to be 9 digits only\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
@@ -144,7 +149,7 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             else
             {
-                sprintf((error_msg), "%sphone must have only 10 digits, start by 0\n", line_str);
+                sprintf((error_msg), "%sphone required to be 10 digits only, start by 0\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
@@ -156,7 +161,7 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             else
             {
-                sprintf((error_msg), "%sdate must by dd/mm/yyyy between 1970-2100\n", line_str);
+                sprintf((error_msg), "%sdate required to be in dd/mm/yyyy format between 1970-2100\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
@@ -168,14 +173,21 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             else
             {
-                sprintf((error_msg), "%sdept must have digits only\n", line_str);
+                sprintf((error_msg), "%sdept required to be digits only\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
             break;
         }
+
         column++;
         value = strtok(NULL, ",");
+    }
+    if (value)
+    {
+        sprintf((error_msg), "%stoo many parameters\n", line_str);
+        print(print_to, error_msg);
+        is_error = 1;
     }
     if (is_error)
     {
@@ -200,14 +212,14 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
     {
         if (strcmp(found->list->costumer.first_name, new->first_name))
         {
-            print(print_to, "first name is not equal to the name in the DB\n");
+            print(print_to, "the first name is not equal to the name in the DB\n");
             ret = 1;
             goto free;
         }
 
         if (strcmp(found->list->costumer.second_name, new->second_name))
         {
-            print(print_to, "second name is not equal to the name in the DB\n");
+            print(print_to, "the second name is not equal to the name in the DB\n");
             ret = 1;
             goto free;
         }
@@ -344,7 +356,6 @@ void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print
     if (new)
     {
         comp_in_tree(sort_by_dept_root, new, oper, print, print_to);
-        // compare(new, oper, print, print_to);
         free(new);
     }
 }
@@ -365,9 +376,9 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         {
             new->first_name = str;
         }
-        else
+        else                
         {
-            print(print_to, "first name must have only char, last tow\n");
+            print(print_to, "first name required to be letters only, at least 2\n");
             return NULL;
         }
         break;
@@ -378,7 +389,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         }
         else
         {
-            print(print_to, "second name must have only char, last tow\n");
+            print(print_to, "second name required to be letters only, at least 2\n");
             return NULL;
         }
         break;
@@ -389,7 +400,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         }
         else
         {
-            print(print_to, "id must have 9 digit\n");
+            print(print_to, "id required to be 9 digits only\n");
             return NULL;
         }
         break;
@@ -400,7 +411,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         }
         else
         {
-            print(print_to, "phone most have 10 char, starting by 0\n");
+            print(print_to, "phone required to be 10 digits only, start by 0\n");
             return NULL;
         }
         break;
@@ -411,7 +422,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         }
         else
         {
-            print(print_to, "date must by dd/mm/yyyy between 1970-2100\n");
+            print(print_to, "date required to be in dd/mm/yyyy format between 1970-2100\n");
             return NULL;
         }
         break;
@@ -422,21 +433,14 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         }
         else
         {
-            print(print_to, "dept must have only digit\n");
+            print(print_to, "dept required to be digits only\n");
             return NULL;
         }
         break;
-    default:
-        return NULL;
     }
 
     return new;
 }
-
-// void compare(Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
-// {
-//     comp_in_tree(sort_by_dept_root, costumer, oper, print, print_to);
-// }
 
 void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
 {
@@ -497,7 +501,10 @@ int comp_int(int first, int second)
 
 void add_date(char *str, Costumer *costumer)
 {
-    char *value = strtok(str, "/");
+
+    char  *ptr;
+
+    char *value = strtok_r(str, "/", &ptr);
     int column = 1;
     while (value)
     {
@@ -515,7 +522,7 @@ void add_date(char *str, Costumer *costumer)
         default:
             break;
         }
-        value = strtok(NULL, "/");
+        value = strtok_r(NULL, "/", &ptr);
         column++;
     }
 }

@@ -7,7 +7,7 @@
 
 #define ARR_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 
-const char *values_arr[] = {"first name", "last name", "id", "phone", "date", "dept"};
+const char *values_arr[] = {"first name", "second name", "id", "phone", "date", "dept"};
 const char *oper_arr[] = {">", "<", "!=", "="};
 const char *options_arr[] = {"select", "set"};
 
@@ -95,7 +95,8 @@ void select_handling(char *str, PRINT_HANDLING print, int print_to)
 
 void set_handling(char *str, PRINT_HANDLING print, int print_to)
 {
-    char *values = calloc(1, strlen(str) * sizeof(char));
+    int ret;
+    char *values = calloc(strlen(str) , sizeof(char));
     if (!values)
     {
         perror("error creating values str");
@@ -113,7 +114,7 @@ void set_handling(char *str, PRINT_HANDLING print, int print_to)
         str++;
     }
 
-    char *value = strtok(str, ",\n");
+    char *value = strtok(str, ",");
     char error_msg[50] = {0};
 
     for (int i = 0; i < ARR_LEN(values_arr); i++)
@@ -146,12 +147,19 @@ void set_handling(char *str, PRINT_HANDLING print, int print_to)
 
         int values_len = strlen(values);
         sprintf(&(values[values_len]), "%s,", value);
-        value = strtok(NULL, ",\n");
+        value = strtok(NULL, ",");
     }
 
-    create_costumer(values, 0, print, print_to);
-    // free(values);
-    // return;
+    ret = create_costumer(values, 0, print, print_to);
+    if (ret)
+    {
+        print(print_to, "debt creation is not complete\n");
+    }
+    else
+    {
+        print(print_to, "created successfully\n");
+    }
+
 exit:
     free(values);
     return;
