@@ -6,7 +6,7 @@
 void remove_white_spaces(char *str);
 void str_to_lower(char *str);
 int valid_date(char *str);
-int valid_dept(char *str);
+int valid_debt(char *str);
 int valid_phone(char *str);
 int valid_id(char *str);
 int valid_name(char *str);
@@ -126,7 +126,7 @@ int valid_phone(char *str)
     return 1;
 }
 
-int valid_dept(char *str)
+int valid_debt(char *str)
 {
     if (!str)
     {
@@ -213,7 +213,7 @@ exit:
 void stringify_costumer(Costumer *costumer, char *str, unsigned int len)
 {
     snprintf(str, len, "%s, %s, %09d, 0%d, %02d/%02d/%d, %d\n", costumer->first_name, costumer->second_name,
-             costumer->id, costumer->phone, costumer->date.day, costumer->date.month, costumer->date.year, costumer->dept);
+             costumer->id, costumer->phone, costumer->date.day, costumer->date.month, costumer->date.year, costumer->debt);
 }
 
 void print_costumer(Costumer *costumer, PRINT_HANDLING print, int print_to)

@@ -7,16 +7,16 @@
 // This program creates a linked list named "list" which contains "customer" structs.
 // Each customer struct is added to the tail of the list and the list remains unchanged throughout the program.
 // The program has two Binary Search Trees (BSTs) for fast searching;
-// an "id BST" for searching by ID and a "dept BST" for indexing by department for printing in deposed order in logarithmic time.
+// an "id BST" for searching by ID and a "debt BST" for indexing by department for printing in deposed order in logarithmic time.
 // The program reads a CSV file and creates a customer struct from each line.
 // If the input is valid, a reference to the new customer is returned, otherwise, null is returned.
 // The new customer is added to the tail of the list and both BSTs.
 // If the customer ID already exists, the program checks if the name is the same, 
-// deletes the customer from the dept BST, updates the department, phone, and date if needed,
-// adds the customer to the dept BST and frees the memory.
+// deletes the customer from the debt BST, updates the department, phone, and date if needed,
+// adds the customer to the debt BST and frees the memory.
 // The program also allows users to add, search, and print customers.
-// The program compares a new customer with all customers by traversing the dept BST,
-// and uses the print function to print the result by dept BST.
+// The program compares a new customer with all customers by traversing the debt BST,
+// and uses the print function to print the result by debt BST.
 
 typedef struct _List
 {
@@ -32,20 +32,20 @@ typedef struct _BSTNode
 
 static List *head = NULL, *tail = NULL;
 static BSTNode *sort_by_id_root = NULL;
-static BSTNode *sort_by_dept_root = NULL;
+static BSTNode *sort_by_debt_root = NULL;
 
 int add_new(Costumer *new, PRINT_HANDLING print, int print_to);
 int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
-void add_to_dept_BST(BSTNode **root, List *list);
+void add_to_debt_BST(BSTNode **root, List *list);
 void add_to_id_BST(BSTNode **root, List *list);
-void add_dept_in_tail(Costumer *costumer);
+void add_debt_in_tail(Costumer *costumer);
 void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
 int comp_values(Costumer *root, Costumer *costumer);
 int comp_date(Costumer *costumer_1, Costumer *costumer_2);
 void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
 void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void *func, void *arg), void *func, void *arg);
 void add_date(char *str, Costumer *costumer);
-void delete_dept_bst(BSTNode **root, int dept, unsigned int id);
+void delete_debt_bst(BSTNode **root, int debt, unsigned int id);
 void free_all();
 void free_tree(BSTNode *root);
 void free_list(List *head);
@@ -85,7 +85,7 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
     Costumer *new = calloc(1, sizeof(Costumer));
     if (!new)
     {
-        perror("error creating new dept");
+        perror("error creating new debt");
         return NULL;
     }
 
@@ -181,13 +181,13 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             break;
         case 6:
-            if (valid_dept(value))
+            if (valid_debt(value))
             {
-                new->dept = atoi(value);
+                new->debt = atoi(value);
             }
             else
             {
-                sprintf((error_msg), "%sdept required to be digits only\n", line_str);
+                sprintf((error_msg), "%sdebt required to be digits only\n", line_str);
                 print(print_to, error_msg);
                 is_error = 1;
             }
@@ -222,9 +222,9 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
 
     if (!found)
     {
-        add_dept_in_tail(new);
+        add_debt_in_tail(new);
         add_to_id_BST(&sort_by_id_root, tail);
-        add_to_dept_BST(&sort_by_dept_root, tail);
+        add_to_debt_BST(&sort_by_debt_root, tail);
     }
     else
     {
@@ -243,15 +243,15 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
         }
 
         List *list = found->list;
-        delete_dept_bst(&sort_by_dept_root, list->costumer.dept, list->costumer.id);
-        list->costumer.dept += new->dept;
+        delete_debt_bst(&sort_by_debt_root, list->costumer.debt, list->costumer.id);
+        list->costumer.debt += new->debt;
         list->costumer.phone = new->phone;
         if (comp_date(&(list->costumer), new) < 0)
         {
             list->costumer.date = new->date;
         }
 
-        add_to_dept_BST(&sort_by_dept_root, list);
+        add_to_debt_BST(&sort_by_debt_root, list);
     free:
         free(new->first_name);
         free(new->second_name);
@@ -260,7 +260,7 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
     return ret;
 }
 
-void add_dept_in_tail(Costumer *costumer)
+void add_debt_in_tail(Costumer *costumer)
 {
     List *new = calloc(1, sizeof(List));
     if (!new)
@@ -309,28 +309,28 @@ void add_to_id_BST(BSTNode **id_root, List *list)
     }
 }
 
-void add_to_dept_BST(BSTNode **dept_root, List *list)
+void add_to_debt_BST(BSTNode **debt_root, List *list)
 {
-    if (*dept_root == NULL)
+    if (*debt_root == NULL)
     {
-        *dept_root = calloc(1, sizeof(BSTNode));
-        if (!dept_root)
+        *debt_root = calloc(1, sizeof(BSTNode));
+        if (!debt_root)
         {
-            perror("error creating new dept_bst");
+            perror("error creating new debt_bst");
             return;
         }
 
-        (*dept_root)->list = list;
+        (*debt_root)->list = list;
         return;
     }
 
-    if (list->costumer.dept <= (*dept_root)->list->costumer.dept)
+    if (list->costumer.debt <= (*debt_root)->list->costumer.debt)
     {
-        add_to_dept_BST(&((*dept_root)->left), list);
+        add_to_debt_BST(&((*debt_root)->left), list);
     }
     else
     {
-        add_to_dept_BST(&((*dept_root)->right), list);
+        add_to_debt_BST(&((*debt_root)->right), list);
     }
 }
 
@@ -373,7 +373,7 @@ void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print
     Costumer *new = create_comp_costumer(str, index, print, print_to);
     if (new)
     {
-        comp_in_tree(sort_by_dept_root, new, oper, print, print_to);
+        comp_in_tree(sort_by_debt_root, new, oper, print, print_to);
         free(new);
     }
 }
@@ -383,7 +383,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
     Costumer *new = calloc(1, sizeof(Costumer));
     if (!new)
     {
-        perror("error creating new dept to comp");
+        perror("error creating new debt to comp");
         return NULL;
     }
 
@@ -445,13 +445,13 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         }
         break;
     case 5:
-        if (valid_dept(str))
+        if (valid_debt(str))
         {
-            new->dept = atoi(str);
+            new->debt = atoi(str);
         }
         else
         {
-            print(print_to, "dept required to be digits only\n");
+            print(print_to, "debt required to be digits only\n");
             goto exit;
         }
         break;
@@ -568,9 +568,9 @@ int comp_values(Costumer *root, Costumer *comp)
     {
         return comp_int(root->phone, comp->phone);
     }
-    else if (comp->dept)
+    else if (comp->debt)
     {
-        return comp_int(root->dept, comp->dept);
+        return comp_int(root->debt, comp->debt);
     }
     else if (comp->date.year)
     {
@@ -608,14 +608,14 @@ BSTNode *max_bst(BSTNode *root)
     return max_bst(root->right);
 }
 
-void delete_dept_bst(BSTNode **root, int dept, unsigned int id)
+void delete_debt_bst(BSTNode **root, int debt, unsigned int id)
 {
     if (*root == NULL)
     {
         return;
     }
 
-    if ((*root)->list->costumer.id == id && (*root)->list->costumer.dept == dept)
+    if ((*root)->list->costumer.id == id && (*root)->list->costumer.debt == debt)
     {
         if ((*root)->left == NULL && (*root)->right == NULL)
         {
@@ -626,7 +626,7 @@ void delete_dept_bst(BSTNode **root, int dept, unsigned int id)
         {
             BSTNode *tmp = max_bst((*root)->left);
             (*root)->list = tmp->list;
-            delete_dept_bst(&((*root)->left), tmp->list->costumer.dept, tmp->list->costumer.id);
+            delete_debt_bst(&((*root)->left), tmp->list->costumer.debt, tmp->list->costumer.id);
         }
         else
         {
@@ -637,13 +637,13 @@ void delete_dept_bst(BSTNode **root, int dept, unsigned int id)
     }
     else
     {
-        if (dept <= (*root)->list->costumer.dept)
+        if (debt <= (*root)->list->costumer.debt)
         {
-            delete_dept_bst(&((*root)->left), dept, id);
+            delete_debt_bst(&((*root)->left), debt, id);
         }
         else
         {
-            delete_dept_bst(&((*root)->right), dept, id);
+            delete_debt_bst(&((*root)->right), debt, id);
         }
     }
 }
@@ -651,12 +651,12 @@ void delete_dept_bst(BSTNode **root, int dept, unsigned int id)
 void print_all(PRINT_HANDLING print, int print_to)
 {
 
-    tree_in_order(sort_by_dept_root, print_costumer, (void *)print, (void *)print_to);
+    tree_in_order(sort_by_debt_root, print_costumer, (void *)print, (void *)print_to);
 }
 
 void free_all()
 {
-    free_tree(sort_by_dept_root);
+    free_tree(sort_by_debt_root);
     free_tree(sort_by_id_root);
     free_list(head);
 }

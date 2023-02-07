@@ -16,7 +16,7 @@ typedef struct
     unsigned int id;
     unsigned int phone;
     Date date;
-    int dept;
+    int debt;
 } Costumer;
 typedef void (*PRINT_HANDLING)(int, char *);
 

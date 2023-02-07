@@ -6,7 +6,7 @@
 void remove_white_spaces(char *str);
 void str_to_lower(char *str);
 int valid_date(char *str);
-int valid_dept(char *str);
+int valid_debt(char *str);
 int valid_phone(char *str);
 int valid_id(char *str);
 int valid_name(char *str);

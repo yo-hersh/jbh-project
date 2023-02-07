@@ -7,7 +7,7 @@
 
 #define ARR_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 
-const char *values_arr[] = {"first name", "second name", "id", "phone", "date", "dept"};
+const char *values_arr[] = {"first name", "second name", "id", "phone", "date", "debt"};
 const char *oper_arr[] = {">", "<", "!=", "="};
 const char *options_arr[] = {"select", "set"};
 
