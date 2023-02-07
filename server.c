@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -15,9 +16,11 @@ void *conn_handler(void *args);
 void send_error_invalid(int socket_id);
 void send_to_client(int socket_id, char *str);
 void print_to_stdin(int socket_id, char *str);
+void int_handler(int sig);
 
 int main(int argc, char **argv)
 {
+    signal(SIGINT, int_handler);
     int sockfd;
     struct sockaddr_in serv_addr, cli_addr;
     socklen_t len = sizeof(cli_addr);
@@ -97,7 +100,6 @@ void *conn_handler(void *args)
     } while (n > 0);
     remove_white_spaces(buffer);
 
-
     buffer[r] = '\0';
     if (strlen(buffer) == 0)
     {
@@ -144,4 +146,11 @@ void send_error_invalid(int socket_id)
 void print_to_stdin(int socket_id, char *str)
 {
     printf("%s", str);
+}
+
+void int_handler(int sig)
+{
+    free_all();
+    printf("\nexiting....\n");
+    exit(0);
 }

@@ -16,7 +16,7 @@ The program prints the results of the requests to `stdout` and runs until it is 
 
 ## Network Program
 To start the server, run `make server`. 
-To run the server, run `make run_server` with arguments `<ip> <port> <file.csv>` 
+To run the server, run `make run_server` with arguments `<file.csv> <ip> <port>` 
 
 To start the client, run `make client`. 
 To run the client, run `make run_client` with arguments `<ip> <port>` 
@@ -43,3 +43,5 @@ The local program and the network use the same files except for the specific exe
 
 Note: Dept can be negative (debt increases) or positive (debt decreases).
 You can get customer details according to each parameter and according to the comparison `>`, `<`, `=`, `!=`.
+
+`make clean` - clean all object files.

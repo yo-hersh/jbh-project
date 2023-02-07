@@ -191,6 +191,9 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
     }
     if (is_error)
     {
+        free(new->first_name);
+        free(new->second_name);
+        free(new);
         return NULL;
     }
 
@@ -648,7 +651,6 @@ void free_tree(BSTNode *root)
     free_tree(root->left);
     free(root);
 }
-
 void free_list(List *head)
 {
     while (head)

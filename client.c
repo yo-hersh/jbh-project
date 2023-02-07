@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
     int sockfd[5];
     struct sockaddr_in serv_addr;
-    char buffer[5][MAX_LEN];
+    char buffer[5][MAX_LEN] = {0};
     int n, i;
 
     if (argc < 3)
