@@ -7,12 +7,12 @@
 // This program creates a linked list named "list" which contains "customer" structs.
 // Each customer struct is added to the tail of the list and the list remains unchanged throughout the program.
 // The program has two Binary Search Trees (BSTs) for fast searching;
-// an "id BST" for searching by ID and a "debt BST" for indexing by department for printing in deposed order in logarithmic time.
+// an "id BST" for searching by ID and a "debt BST" for indexing by debt for printing in deposed order in logarithmic time.
 // The program reads a CSV file and creates a customer struct from each line.
 // If the input is valid, a reference to the new customer is returned, otherwise, null is returned.
 // The new customer is added to the tail of the list and both BSTs.
 // If the customer ID already exists, the program checks if the name is the same, 
-// deletes the customer from the debt BST, updates the department, phone, and date if needed,
+// deletes the customer from the debt BST, updates the debt, phone, and date if needed,
 // adds the customer to the debt BST and frees the memory.
 // The program also allows users to add, search, and print customers.
 // The program compares a new customer with all customers by traversing the debt BST,

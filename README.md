@@ -39,7 +39,7 @@ The local program and the network use the same files except for the specific exe
 - Id
 - Phone
 - Date
-- Department
+- debt
 
 Note: debt can be negative (debt increases) or positive (debt decreases).
 You can get customer details according to each parameter and according to the comparison `>`, `<`, `=`, `!=`.
