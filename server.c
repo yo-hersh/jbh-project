@@ -20,6 +20,7 @@ void int_handler(int sig);
 
 int main(int argc, char **argv)
 {
+    // handle ctrl+c interrupter
     signal(SIGINT, int_handler);
     int sockfd;
     struct sockaddr_in serv_addr, cli_addr;
@@ -39,6 +40,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // 0 - line 0 - the first line
     create_list(file, print_to_stdin, 0);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -74,6 +76,8 @@ int main(int argc, char **argv)
             return 1;
         }
 
+        // the value and not &new_sock, because if not using join, is will changed by the next thread
+        // it's get a warning for add a value as a pointer
         pthread_create(&tid, NULL, conn_handler, (void *)new_sock);
         pthread_join(tid, NULL);
     }

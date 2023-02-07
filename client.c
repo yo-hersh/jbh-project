@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 
 #define MAX_LEN 1024
+#define CONNECT_NUM 5
 
 int main(int argc, char **argv)
 {
@@ -14,11 +15,11 @@ int main(int argc, char **argv)
     char *select_help = "--select <value> <operation> <everything>.\n";
     char *set_help = "--set <value> = <everything>.\n";
     char *values_help = "--values: first name, last name, id, phone, date, dept.\n";
-    char *massage = "--Enter a 5 messages, to send it enter send. for options enter halp\n";
+    char *massage = "--------------------STORE DATABASE---------------------\n--Enter a 5 messages, to send it enter send. for options enter halp\n";
 
-    int sockfd[5];
+    int sockfd[CONNECT_NUM];
     struct sockaddr_in serv_addr;
-    char buffer[5][MAX_LEN] = {0};
+    char buffer[CONNECT_NUM][MAX_LEN] = {0};
     int n, i;
 
     if (argc < 3)
@@ -59,7 +60,7 @@ int main(int argc, char **argv)
         {
             break;
         }
-        else if (i < 5)
+        else if (i < CONNECT_NUM)
         {
             strcpy(buffer[i++], temp_buf);
         }
@@ -91,7 +92,7 @@ int main(int argc, char **argv)
         shutdown(sockfd[i], SHUT_WR);
     }
 
-    for (i = 0; i < 5 && buffer[i][0]; i++)
+    for (i = 0; i < CONNECT_NUM && buffer[i][0]; i++)
     {
         do
         {

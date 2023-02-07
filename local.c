@@ -8,7 +8,6 @@ void print_to_stdin(int socket_id, char *str);
 
 int main(int argc, char const *argv[])
 {
-
     char *display_option = "\n--please select option: set <value> / select <value> / print\n--use <option> --help to see more\n--type quit to exit\n";
     char *select_help = "--select <value> <operation> <everything>.\n";
     char *set_help = "--set <value> = <everything>.\n";
@@ -68,6 +67,7 @@ int main(int argc, char const *argv[])
     return 0;
 }
 
+// socket_id is not using, only for network program - as a ref func
 void print_to_stdin(int socket_id, char *str)
 {
     printf("%s", str);

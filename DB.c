@@ -4,6 +4,20 @@
 #include "DB.h"
 #include "str_handling.h"
 
+// This program creates a linked list named "list" which contains "customer" structs.
+// Each customer struct is added to the tail of the list and the list remains unchanged throughout the program.
+// The program has two Binary Search Trees (BSTs) for fast searching;
+// an "id BST" for searching by ID and a "dept BST" for indexing by department for printing in deposed order in logarithmic time.
+// The program reads a CSV file and creates a customer struct from each line.
+// If the input is valid, a reference to the new customer is returned, otherwise, null is returned.
+// The new customer is added to the tail of the list and both BSTs.
+// If the customer ID already exists, the program checks if the name is the same, 
+// deletes the customer from the dept BST, updates the department, phone, and date if needed,
+// adds the customer to the dept BST and frees the memory.
+// The program also allows users to add, search, and print customers.
+// The program compares a new customer with all customers by traversing the dept BST,
+// and uses the print function to print the result by dept BST.
+
 typedef struct _List
 {
     Costumer costumer;
@@ -20,18 +34,18 @@ static List *head = NULL, *tail = NULL;
 static BSTNode *sort_by_id_root = NULL;
 static BSTNode *sort_by_dept_root = NULL;
 
-void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
-int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
-void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void *func, void *arg), void *func, void *arg);
 int add_new(Costumer *new, PRINT_HANDLING print, int print_to);
-void add_to_id_BST(BSTNode **root, List *list);
+int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 void add_to_dept_BST(BSTNode **root, List *list);
+void add_to_id_BST(BSTNode **root, List *list);
 void add_dept_in_tail(Costumer *costumer);
 void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
 int comp_values(Costumer *root, Costumer *costumer);
+int comp_date(Costumer *costumer_1, Costumer *costumer_2);
+void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
+void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void *func, void *arg), void *func, void *arg);
 void add_date(char *str, Costumer *costumer);
 void delete_dept_bst(BSTNode **root, int dept, unsigned int id);
-int comp_date(Costumer *costumer_1, Costumer *costumer_2);
 void free_all();
 void free_tree(BSTNode *root);
 void free_list(List *head);
@@ -83,12 +97,12 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
 
     str_to_lower(str);
     remove_white_spaces(str);
-    
+
     char *value;
     value = strtok(str, ",");
 
     int is_error = 0, column = 1;
-    for (int i = 0; i < 6 ; i++)
+    for (int i = 0; i < 6; i++)
     {
         remove_white_spaces(value);
         switch (column)
@@ -203,6 +217,7 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
 int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
 {
     int ret = 0;
+    // check is the id is already exits
     BSTNode *found = find_by_id(sort_by_id_root, new->id);
 
     if (!found)
@@ -444,10 +459,10 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
 
     return new;
 exit:
-free(new->first_name);
-free(new->second_name);
-free(new);
-return NULL;
+    free(new->first_name);
+    free(new->second_name);
+    free(new);
+    return NULL;
 }
 
 void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
@@ -510,7 +525,7 @@ int comp_int(int first, int second)
 void add_date(char *str, Costumer *costumer)
 {
 
-    char  *ptr;
+    char *ptr;
 
     char *value = strtok_r(str, "/", &ptr);
     int column = 1;
