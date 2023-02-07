@@ -379,10 +379,10 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         {
             new->first_name = str;
         }
-        else                
+        else
         {
             print(print_to, "first name required to be letters only, at least 2\n");
-            return NULL;
+            goto exit;
         }
         break;
     case 1:
@@ -393,7 +393,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         else
         {
             print(print_to, "second name required to be letters only, at least 2\n");
-            return NULL;
+            goto exit;
         }
         break;
     case 2:
@@ -404,7 +404,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         else
         {
             print(print_to, "id required to be 9 digits only\n");
-            return NULL;
+            goto exit;
         }
         break;
     case 3:
@@ -415,7 +415,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         else
         {
             print(print_to, "phone required to be 10 digits only, start by 0\n");
-            return NULL;
+            goto exit;
         }
         break;
     case 4:
@@ -426,7 +426,7 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         else
         {
             print(print_to, "date required to be in dd/mm/yyyy format between 1970-2100\n");
-            return NULL;
+            goto exit;
         }
         break;
     case 5:
@@ -437,12 +437,17 @@ Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING pri
         else
         {
             print(print_to, "dept required to be digits only\n");
-            return NULL;
+            goto exit;
         }
         break;
     }
 
     return new;
+exit:
+free(new->first_name);
+free(new->second_name);
+free(new);
+return NULL;
 }
 
 void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)

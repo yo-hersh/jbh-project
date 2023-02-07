@@ -96,7 +96,7 @@ void select_handling(char *str, PRINT_HANDLING print, int print_to)
 void set_handling(char *str, PRINT_HANDLING print, int print_to)
 {
     int ret;
-    char *values = calloc(strlen(str) , sizeof(char));
+    char *values = calloc(strlen(str), sizeof(char));
     if (!values)
     {
         perror("error creating values str");
@@ -135,6 +135,10 @@ void set_handling(char *str, PRINT_HANDLING print, int print_to)
             goto exit;
         }
         value += len;
+        if (*value == ' ')
+        {
+            value++;
+        }
 
         if (*value != '=')
         {

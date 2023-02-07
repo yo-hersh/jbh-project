@@ -16,6 +16,7 @@ int main(int argc, char const *argv[])
 
     if (argc < 2)
     {
+        printf("Usage: %s <db file>\n", argv[0]);
         return 1;
     }
 
