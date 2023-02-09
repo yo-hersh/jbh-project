@@ -20,7 +20,7 @@
 
 typedef struct _List
 {
-    Costumer costumer;
+    Customer customer;
     struct _List *next;
 } List;
 
@@ -34,45 +34,46 @@ static List *head = NULL, *tail = NULL;
 static BSTNode *sort_by_id_root = NULL;
 static BSTNode *sort_by_debt_root = NULL;
 
-int add_new(Costumer *new, PRINT_HANDLING print, int print_to);
-int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
+int add_new(Customer *new, PRINT_HANDLING print, int print_to);
+int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 void add_to_debt_BST(BSTNode **root, List *list);
 void add_to_id_BST(BSTNode **root, List *list);
-void add_debt_in_tail(Costumer *costumer);
+void add_debt_in_tail(Customer *customer);
 void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
-int comp_values(Costumer *root, Costumer *costumer);
-int comp_date(Costumer *costumer_1, Costumer *costumer_2);
-void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to);
-void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void *func, void *arg), void *func, void *arg);
-void add_date(char *str, Costumer *costumer);
+int comp_values(Customer *root, Customer *customer);
+int comp_date(Customer *customer_1, Customer *customer_2);
+void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to);
+void tree_in_order(BSTNode *root, void (*do_something)(Customer *customer, void *func, void *arg), void *func, void *arg);
+void add_date(char *str, Customer *customer);
 void delete_debt_bst(BSTNode **root, int debt, unsigned int id);
 void free_all();
 void free_tree(BSTNode *root);
 void free_list(List *head);
 BSTNode *max_bst(BSTNode *root);
-Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
-Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING print, int print_to);
+Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
+Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING print, int print_to);
 BSTNode *find_by_id(BSTNode *root, unsigned int id);
 
-void create_list(FILE *file, PRINT_HANDLING print, int print_to)
+void create_list(FILE *file)
 {
-    char buf[1024];
+    char buf[BUF_LEN];
     unsigned int line = 0;
-    while (fgets(buf, sizeof(buf), file))
+    while (fgets(buf, BUF_LEN, file))
     {
-        if (buf[strlen(buf) - 1] == '\n')
+        if (buf_overflow(buf, print_to_stdout, 0))
         {
-            buf[strlen(buf) - 1] = '\0';
+            continue;
         }
-        create_costumer(buf, ++line, print, print_to);
+
+        create_customer(buf, ++line, print_to_stdout, 0);
     }
     fclose(file);
-    print_all(print, print_to);
+    print_all(print_to_stdout, 0);
 }
 
-int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int print_to)
+int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to)
 {
-    Costumer *new = create_costumer_from_str(str, line, print, print_to);
+    Customer *new = create_customer_from_str(str, line, print, print_to);
     if (new)
     {
         return add_new(new, print, print_to);
@@ -80,16 +81,16 @@ int create_costumer(char *str, unsigned int line, PRINT_HANDLING print, int prin
     return 1;
 }
 
-Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to)
+Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to)
 {
-    Costumer *new = calloc(1, sizeof(Costumer));
+    Customer *new = calloc(1, sizeof(Customer));
     if (!new)
     {
         perror("error creating new debt");
         return NULL;
     }
 
-    char line_str[30] = {0}, error_msg[200] = {0};
+    char line_str[30] = {0}, error_msg[MSG_LEN] = {0};
     if (line)
     {
         sprintf(&(line_str[0]), "error line %d: ", line);
@@ -121,8 +122,8 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             else
             {
-                sprintf((error_msg), "%sfirst name required to be letters only, at least 2\n", line_str);
-                print(print_to, error_msg);
+                // sprintf((error_msg), "%sfirst name required to be letters only, at least 2\n", line_str);
+                print(print_to, "%sfirst name required to be letters only, at least 2\n", line_str);
                 is_error = 1;
             }
             break;
@@ -139,8 +140,8 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
             }
             else
             {
-                sprintf((error_msg), "%ssecond name required to be letters only, at least 2\n", line_str);
-                print(print_to, error_msg);
+                // sprintf((error_msg), "%ssecond name required to be letters only, at least 2\n", line_str);
+                print(print_to, "%ssecond name required to be letters only, at least 2\n", line_str);
                 is_error = 1;
             }
             break;
@@ -214,7 +215,7 @@ Costumer *create_costumer_from_str(char *str, unsigned int line, PRINT_HANDLING 
     return new;
 }
 
-int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
+int add_new(Customer *new, PRINT_HANDLING print, int print_to)
 {
     int ret = 0;
     // check is the id is already exits
@@ -228,14 +229,14 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
     }
     else
     {
-        if (strcmp(found->list->costumer.first_name, new->first_name))
+        if (strcmp(found->list->customer.first_name, new->first_name))
         {
             print(print_to, "the first name is not equal to the name in the DB\n");
             ret = 1;
             goto free;
         }
 
-        if (strcmp(found->list->costumer.second_name, new->second_name))
+        if (strcmp(found->list->customer.second_name, new->second_name))
         {
             print(print_to, "the second name is not equal to the name in the DB\n");
             ret = 1;
@@ -243,12 +244,12 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
         }
 
         List *list = found->list;
-        delete_debt_bst(&sort_by_debt_root, list->costumer.debt, list->costumer.id);
-        list->costumer.debt += new->debt;
-        list->costumer.phone = new->phone;
-        if (comp_date(&(list->costumer), new) < 0)
+        delete_debt_bst(&sort_by_debt_root, list->customer.debt, list->customer.id);
+        list->customer.debt += new->debt;
+        list->customer.phone = new->phone;
+        if (comp_date(&(list->customer), new) < 0)
         {
-            list->costumer.date = new->date;
+            list->customer.date = new->date;
         }
 
         add_to_debt_BST(&sort_by_debt_root, list);
@@ -260,7 +261,7 @@ int add_new(Costumer *new, PRINT_HANDLING print, int print_to)
     return ret;
 }
 
-void add_debt_in_tail(Costumer *costumer)
+void add_debt_in_tail(Customer *customer)
 {
     List *new = calloc(1, sizeof(List));
     if (!new)
@@ -269,14 +270,14 @@ void add_debt_in_tail(Costumer *costumer)
         return;
     }
 
-    new->costumer = (*costumer);
+    new->customer = (*customer);
 
     if (tail)
     {
         (tail)->next = new;
     }
     (tail) = new;
-    free(costumer);
+    free(customer);
 
     if (!head)
     {
@@ -299,7 +300,7 @@ void add_to_id_BST(BSTNode **id_root, List *list)
         return;
     }
 
-    if (list->costumer.id <= (*id_root)->list->costumer.id)
+    if (list->customer.id <= (*id_root)->list->customer.id)
     {
         add_to_id_BST(&((*id_root)->left), list);
     }
@@ -324,7 +325,7 @@ void add_to_debt_BST(BSTNode **debt_root, List *list)
         return;
     }
 
-    if (list->costumer.debt <= (*debt_root)->list->costumer.debt)
+    if (list->customer.debt <= (*debt_root)->list->customer.debt)
     {
         add_to_debt_BST(&((*debt_root)->left), list);
     }
@@ -334,7 +335,7 @@ void add_to_debt_BST(BSTNode **debt_root, List *list)
     }
 }
 
-void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void *func, void *arg), void *func, void *arg)
+void tree_in_order(BSTNode *root, void (*do_something)(Customer *customer, void *func, void *arg), void *func, void *arg)
 {
     if (!root)
     {
@@ -342,7 +343,7 @@ void tree_in_order(BSTNode *root, void (*do_something)(Costumer *costumer, void 
     }
 
     tree_in_order(root->left, do_something, func, arg);
-    do_something(&(root->list->costumer), func, arg);
+    do_something(&(root->list->customer), func, arg);
     tree_in_order(root->right, do_something, func, arg);
 }
 
@@ -353,12 +354,12 @@ BSTNode *find_by_id(BSTNode *root, unsigned int id)
         return NULL;
     }
 
-    if (root->list->costumer.id == id)
+    if (root->list->customer.id == id)
     {
         return root;
     }
 
-    if (id > root->list->costumer.id)
+    if (id > root->list->customer.id)
     {
         return find_by_id(root->right, id);
     }
@@ -370,7 +371,7 @@ BSTNode *find_by_id(BSTNode *root, unsigned int id)
 
 void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to)
 {
-    Costumer *new = create_comp_costumer(str, index, print, print_to);
+    Customer *new = create_comp_customer(str, index, print, print_to);
     if (new)
     {
         comp_in_tree(sort_by_debt_root, new, oper, print, print_to);
@@ -378,9 +379,9 @@ void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print
     }
 }
 
-Costumer *create_comp_costumer(char *str, unsigned int index, PRINT_HANDLING print, int print_to)
+Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING print, int print_to)
 {
-    Costumer *new = calloc(1, sizeof(Costumer));
+    Customer *new = calloc(1, sizeof(Customer));
     if (!new)
     {
         perror("error creating new debt to comp");
@@ -465,45 +466,45 @@ exit:
     return NULL;
 }
 
-void comp_in_tree(BSTNode *root, Costumer *costumer, char *oper, PRINT_HANDLING print, int print_to)
+void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to)
 {
     if (!root)
     {
         return;
     }
 
-    comp_in_tree(root->left, costumer, oper, print, print_to);
-    int ret = comp_values(&(root->list->costumer), costumer);
+    comp_in_tree(root->left, customer, oper, print, print_to);
+    int ret = comp_values(&(root->list->customer), customer);
     if (strstr(oper, ">"))
     {
         if (ret > 0)
         {
-            print_costumer(&(root->list->costumer), print, print_to);
+            print_customer(&(root->list->customer), print, print_to);
         }
     }
     else if (strstr(oper, "<"))
     {
         if (ret < 0)
         {
-            print_costumer(&(root->list->costumer), print, print_to);
+            print_customer(&(root->list->customer), print, print_to);
         }
     }
     else if (strstr(oper, "!="))
     {
         if (ret != 0)
         {
-            print_costumer(&(root->list->costumer), print, print_to);
+            print_customer(&(root->list->customer), print, print_to);
         }
     }
     else if (strstr(oper, "="))
     {
         if (ret == 0)
         {
-            print_costumer(&(root->list->costumer), print, print_to);
+            print_customer(&(root->list->customer), print, print_to);
         }
     }
 
-    comp_in_tree(root->right, costumer, oper, print, print_to);
+    comp_in_tree(root->right, customer, oper, print, print_to);
 }
 
 int comp_int(int first, int second)
@@ -522,7 +523,7 @@ int comp_int(int first, int second)
     }
 }
 
-void add_date(char *str, Costumer *costumer)
+void add_date(char *str, Customer *customer)
 {
 
     char *ptr;
@@ -534,13 +535,13 @@ void add_date(char *str, Costumer *costumer)
         switch (column)
         {
         case 1:
-            costumer->date.day = atoi(value);
+            customer->date.day = atoi(value);
             break;
         case 2:
-            costumer->date.month = atoi(value);
+            customer->date.month = atoi(value);
             break;
         case 3:
-            costumer->date.year = atoi(value);
+            customer->date.year = atoi(value);
             break;
         default:
             break;
@@ -550,7 +551,7 @@ void add_date(char *str, Costumer *costumer)
     }
 }
 
-int comp_values(Costumer *root, Costumer *comp)
+int comp_values(Customer *root, Customer *comp)
 {
     if (comp->first_name)
     {
@@ -578,23 +579,23 @@ int comp_values(Costumer *root, Costumer *comp)
     }
 }
 
-int comp_date(Costumer *costumer_1, Costumer *costumer_2)
+int comp_date(Customer *customer_1, Customer *customer_2)
 {
-    int year = comp_int(costumer_1->date.year, costumer_2->date.year);
+    int year = comp_int(customer_1->date.year, customer_2->date.year);
     if (year)
     {
         return year;
     }
     else
     {
-        int month = comp_int(costumer_1->date.month, costumer_2->date.month);
+        int month = comp_int(customer_1->date.month, customer_2->date.month);
         if (month)
         {
             return month;
         }
         else
         {
-            return comp_int(costumer_1->date.day, costumer_2->date.day);
+            return comp_int(customer_1->date.day, customer_2->date.day);
         }
     }
 }
@@ -615,7 +616,7 @@ void delete_debt_bst(BSTNode **root, int debt, unsigned int id)
         return;
     }
 
-    if ((*root)->list->costumer.id == id && (*root)->list->costumer.debt == debt)
+    if ((*root)->list->customer.id == id && (*root)->list->customer.debt == debt)
     {
         if ((*root)->left == NULL && (*root)->right == NULL)
         {
@@ -626,7 +627,7 @@ void delete_debt_bst(BSTNode **root, int debt, unsigned int id)
         {
             BSTNode *tmp = max_bst((*root)->left);
             (*root)->list = tmp->list;
-            delete_debt_bst(&((*root)->left), tmp->list->costumer.debt, tmp->list->costumer.id);
+            delete_debt_bst(&((*root)->left), tmp->list->customer.debt, tmp->list->customer.id);
         }
         else
         {
@@ -637,7 +638,7 @@ void delete_debt_bst(BSTNode **root, int debt, unsigned int id)
     }
     else
     {
-        if (debt <= (*root)->list->costumer.debt)
+        if (debt <= (*root)->list->customer.debt)
         {
             delete_debt_bst(&((*root)->left), debt, id);
         }
@@ -650,7 +651,7 @@ void delete_debt_bst(BSTNode **root, int debt, unsigned int id)
 
 void print_all(PRINT_HANDLING print, int print_to)
 {
-    tree_in_order(sort_by_debt_root, (void *)print_costumer, (void *)print, (void *)print_to);
+    tree_in_order(sort_by_debt_root, (void *)print_customer, (void *)print, (void *)print_to);
 }
 
 void free_all()
@@ -675,8 +676,8 @@ void free_list(List *head)
     while (head)
     {
         List *temp = head->next;
-        free(head->costumer.first_name);
-        free(head->costumer.second_name);
+        free(head->customer.first_name);
+        free(head->customer.second_name);
         free(head);
         head = temp;
     }

@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "str_handling.h"
 #include "DB.h"
 #include "users_input.h"
-
-void print_to_stdin(int socket_id, char *str);
 
 int main(int argc, char const *argv[])
 {
@@ -16,7 +15,7 @@ int main(int argc, char const *argv[])
     if (argc < 2)
     {
         printf("Usage: %s <db file>\n", argv[0]);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     FILE *file = fopen(argv[1], "r");
@@ -24,10 +23,10 @@ int main(int argc, char const *argv[])
     if (!file)
     {
         printf("Error: file %s not found\n", argv[1]);
-        return 1;
+        return EXIT_FAILURE;
     }
 
-    create_list(file, print_to_stdin, 0);
+    create_list(file);
     char buf[200] = {0};
     while (1)
     {
@@ -37,9 +36,9 @@ int main(int argc, char const *argv[])
         {
             break;
         }
-        else if (!strcmp(buf, "print\n"))
+        if (!strcmp(buf, "print\n"))
         {
-            print_all(print_to_stdin,0);
+            print_all(print_to_stdout, 0);
         }
         else if (!strcmp(buf, "set --help\n"))
         {
@@ -51,24 +50,24 @@ int main(int argc, char const *argv[])
         }
         else
         {
-            if (buf[strlen(buf) - 1] == '\n')
+            if (buf_overflow(buf, print_to_stdout, 0))
             {
-                buf[strlen(buf) - 1] = '\0';
+                continue;
             }
             if (buf[0])
             {
-                user_str(buf, print_to_stdin, 0);
+                user_str(buf, print_to_stdout, 0);
             }
         }
     }
 
     printf("see you, let's have a nice day\n");
     free_all();
-    return 0;
+    return EXIT_SUCCESS;
 }
 
-// socket_id is not using, only for network program - as a ref func
-void print_to_stdin(int socket_id, char *str)
-{
-    printf("%s", str);
-}
+// // socket_id is not using, only for network program - as a ref func
+// void print_to_stdout(int socket_id, char *str)
+// {
+//     printf("%s", str);
+// }

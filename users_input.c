@@ -154,7 +154,7 @@ void set_handling(char *str, PRINT_HANDLING print, int print_to)
         value = strtok(NULL, ",");
     }
 
-    ret = create_costumer(values, 0, print, print_to);
+    ret = create_customer(values, 0, print, print_to);
     if (ret)
     {
         print(print_to, "debt creation is not complete\n");

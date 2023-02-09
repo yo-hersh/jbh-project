@@ -10,12 +10,10 @@
 #include "users_input.h"
 #include "DB.h"
 
-#define MAX_LEN 1024
-
 void *conn_handler(void *args);
 void send_error_invalid(int socket_id);
-void send_to_client(int socket_id, char *str);
-void print_to_stdin(int socket_id, char *str);
+void send_to_client(int socket_id, char *str, ...);
+// void print_to_stdout(int socket_id, char *str);
 void int_handler(int sig);
 
 int main(int argc, char **argv)
@@ -29,7 +27,7 @@ int main(int argc, char **argv)
     if (argc < 4)
     {
         printf("Usage: %s <db file> <ip> <port>\n", argv[0]);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     FILE *file = fopen(argv[1], "r");
@@ -37,17 +35,16 @@ int main(int argc, char **argv)
     if (!file)
     {
         printf("Error: file %s not found\n", argv[1]);
-        return 1;
+        return EXIT_FAILURE;
     }
 
-    // 0 - line 0 - the first line
-    create_list(file, print_to_stdin, 0);
+    create_list(file);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
     {
         perror("Error creating socket");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -57,13 +54,13 @@ int main(int argc, char **argv)
     if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         perror("Error binding socket");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     if (listen(sockfd, 5) < 0)
     {
         perror("Error listening");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     while (1)
@@ -73,7 +70,7 @@ int main(int argc, char **argv)
         if (new_sock < 0)
         {
             perror("accept failed");
-            return 1;
+            return EXIT_FAILURE;
         }
 
         // the value and not &new_sock, because if not using join, is will changed by the next thread
@@ -83,18 +80,18 @@ int main(int argc, char **argv)
     }
     free_all();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void *conn_handler(void *args)
 {
-    char buffer[MAX_LEN] = {0};
+    char buf[BUF_LEN] = {0};
     int new_sock = (int)args;
     int n, r = 0;
 
     do
     {
-        n = recv(new_sock, buffer + r, MAX_LEN - r, 0);
+        n = recv(new_sock, buf + r, BUF_LEN - r, 0);
         if (n < 0)
         {
             perror("Server error receiving data");
@@ -102,26 +99,26 @@ void *conn_handler(void *args)
         }
         r += n;
     } while (n > 0);
-    remove_white_spaces(buffer);
+    remove_white_spaces(buf);
 
-    buffer[r] = '\0';
-    if (strlen(buffer) == 0)
+    buf[r] = '\0';
+    if (strlen(buf) == 0)
     {
         send_error_invalid(new_sock);
     }
-    else if (strstr(buffer, "print"))
+    else if (strstr(buf, "print"))
     {
         print_all(send_to_client, new_sock);
     }
     else
     {
-        if (buffer[strlen(buffer) - 1] == '\n')
+        if (buf_overflow(buf, send_to_client, new_sock))
         {
-            buffer[strlen(buffer) - 1] = '\0';
+            goto exit;
         }
-        if (buffer[0])
+        if (buf[0])
         {
-            user_str(buffer, send_to_client, new_sock);
+            user_str(buf, send_to_client, new_sock);
         }
     }
 
@@ -130,7 +127,7 @@ exit:
     return NULL;
 }
 
-void send_to_client(int socket_id, char *str)
+void send_to_client(int socket_id, char *str, ...)
 {
     int n;
     n = send(socket_id, str, strlen(str), 0);
@@ -145,11 +142,6 @@ void send_error_invalid(int socket_id)
 {
     char *str = "invalid value";
     send_to_client(socket_id, str);
-}
-
-void print_to_stdin(int socket_id, char *str)
-{
-    printf("%s", str);
 }
 
 void int_handler(int sig)

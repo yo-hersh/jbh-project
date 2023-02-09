@@ -12,6 +12,7 @@ int valid_id(char *str);
 int valid_name(char *str);
 int is_not_only_digit(char *str);
 int is_not_only_char(char *str);
+int buf_overflow(char *buf, PRINT_HANDLING print, int print_to);
 
 void remove_white_spaces(char *str)
 {
@@ -196,7 +197,7 @@ int valid_date(char *str)
             goto exit;
             break;
         }
-        value = strtok_r(NULL, "/",&ptr);
+        value = strtok_r(NULL, "/", &ptr);
         column++;
     }
     if (value)
@@ -210,22 +211,41 @@ exit:
     return 0;
 }
 
-void stringify_costumer(Costumer *costumer, char *str, unsigned int len)
+void stringify_customer(Customer *customer, char *str, unsigned int len)
 {
-    snprintf(str, len, "%s, %s, %09d, 0%d, %02d/%02d/%d, %d\n", costumer->first_name, costumer->second_name,
-             costumer->id, costumer->phone, costumer->date.day, costumer->date.month, costumer->date.year, costumer->debt);
+    snprintf(str, len, "%s, %s, %09d, 0%d, %02d/%02d/%d, %d\n", customer->first_name, customer->second_name,
+             customer->id, customer->phone, customer->date.day, customer->date.month, customer->date.year, customer->debt);
 }
 
-void print_costumer(Costumer *costumer, PRINT_HANDLING print, int print_to)
+void print_customer(Customer *customer, PRINT_HANDLING print, int print_to)
 {
-    unsigned int len = strlen(costumer->first_name) + strlen(costumer->second_name) + 50;
+    unsigned int len = strlen(customer->first_name) + strlen(customer->second_name) + 50;
     char *str = malloc(len * sizeof(char));
     if (!str)
-        {
-            perror("error creating stringy costumer");
-            return;
-        }
-    stringify_costumer(costumer, str, len);
+    {
+        perror("error creating stringy customer");
+        return;
+    }
+    stringify_customer(customer, str, len);
     print(print_to, str);
     free(str);
+}
+
+void print_to_stdout(int socket_id, char *str,...)
+{
+    printf("%s", str);
+}
+
+int buf_overflow(char *buf, PRINT_HANDLING print, int print_to)
+{
+    if (buf[strlen(buf) - 1] == '\n')
+    {
+        buf[strlen(buf) - 1] = '\0';
+        return 0;
+    }
+    else
+    {
+        print(print_to, "overflow in buffer, max length is %s", BUF_LEN - 1);
+        return 1;
+    }
 }

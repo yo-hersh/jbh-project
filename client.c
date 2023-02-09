@@ -5,8 +5,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "str_handling.h"
 
-#define MAX_LEN 1024
 #define CONNECT_NUM 5
 
 int main(int argc, char **argv)
@@ -19,13 +19,13 @@ int main(int argc, char **argv)
 
     int sockfd[CONNECT_NUM];
     struct sockaddr_in serv_addr;
-    char buffer[CONNECT_NUM][MAX_LEN] = {0};
+    char buffer[CONNECT_NUM][BUF_LEN] = {0};
     int n, i;
 
     if (argc < 3)
     {
         printf("Usage: %s <ip> <port>\n", argv[0]);
-        return 1;
+        return EXIT_FAILURE;
     }
 
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -37,8 +37,13 @@ int main(int argc, char **argv)
     i = 0;
     while (1)
     {
-        char temp_buf[MAX_LEN];
-        fgets(temp_buf, MAX_LEN, stdin);
+        char temp_buf[BUF_LEN];
+        fgets(temp_buf, BUF_LEN, stdin);
+        if (buf_overflow(temp_buf,print_to_stdout,0))
+        {
+            continue;
+        }
+        
         if (!strcmp(temp_buf, "halp\n"))
         {
             printf("%s", display_option);
@@ -54,7 +59,7 @@ int main(int argc, char **argv)
         else if (!strcmp(temp_buf, "quit\n"))
         {
             puts("see you, lets have a nice day");
-            return 0;
+            return EXIT_SUCCESS;
         }
         else if (!strcmp(temp_buf, "send\n"))
         {
@@ -72,12 +77,12 @@ int main(int argc, char **argv)
         if (sockfd[i] < 0)
         {
             perror("Error creating socket");
-            return 1;
+            return EXIT_FAILURE;
         }
         if (connect(sockfd[i], (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
         {
             perror("Error connecting");
-            return 1;
+            return EXIT_FAILURE;
         }
     }
 
@@ -87,7 +92,7 @@ int main(int argc, char **argv)
         if (n < 0)
         {
             perror("Client error sending data");
-            return 1;
+            return EXIT_FAILURE;
         }
         shutdown(sockfd[i], SHUT_WR);
     }
@@ -96,11 +101,11 @@ int main(int argc, char **argv)
     {
         do
         {
-            n = recv(sockfd[i], buffer[i], MAX_LEN, 0);
+            n = recv(sockfd[i], buffer[i], BUF_LEN, 0);
             if (n < 0)
             {
                 perror("Client error receiving data");
-                return 1;
+                return EXIT_FAILURE;
             }
             else if (n > 0)
             {
@@ -111,5 +116,5 @@ int main(int argc, char **argv)
         close(sockfd[i]);
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
