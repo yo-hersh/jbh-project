@@ -11,7 +11,7 @@
 // The program reads a CSV file and creates a customer struct from each line.
 // If the input is valid, a reference to the new customer is returned, otherwise, null is returned.
 // The new customer is added to the tail of the list and both BSTs.
-// If the customer ID already exists, the program checks if the name is the same, 
+// If the customer ID already exists, the program checks if the name is the same,
 // deletes the customer from the debt BST, updates the debt, phone, and date if needed,
 // adds the customer to the debt BST and frees the memory.
 // The program also allows users to add, search, and print customers.
@@ -650,8 +650,7 @@ void delete_debt_bst(BSTNode **root, int debt, unsigned int id)
 
 void print_all(PRINT_HANDLING print, int print_to)
 {
-
-    tree_in_order(sort_by_debt_root, print_costumer, (void *)print, (void *)print_to);
+    tree_in_order(sort_by_debt_root, (void *)print_costumer, (void *)print, (void *)print_to);
 }
 
 void free_all()
