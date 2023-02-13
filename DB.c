@@ -18,6 +18,50 @@
 // The program compares a new customer with all customers by traversing the debt BST,
 // and uses the print function to print the result by debt BST.
 
+// typedef struct ValidationFunctions
+// {
+//     int (*valid_name)(char *);
+//     int (*valid_id)(char *);
+//     int (*valid_phone)(char *);
+//     int (*valid_date)(char *);
+//     int (*valid_debt)(char *);
+// } ValidationFunctions;
+
+// const ValidationFunctions validations = {
+//     valid_name,
+//     valid_id,
+//     valid_phone,
+//     valid_date,
+//     valid_debt};
+
+typedef struct Validation
+{
+    int (*valid_func)(char *value);
+    int (*add_func)(Customer *customer, char *value);
+    const char *error_msg;
+} Validation;
+
+Validation validations[] = {
+    {valid_name, add_f_name, "first name required to be letters only, at least 2\n"},
+    {valid_name, add_s_name, "second name required to be letters only, at least 2\n"},
+    {valid_id, add_id, "id required to be 9 digits only\n"},
+    {valid_phone, add_phone, "phone required to be 10 digits only, start by 0\n"},
+    {valid_date, add_date, "date required to be in dd/mm/yyyy format between 1970-2100\n"},
+    {valid_debt, add_debt, "debt required to be digits only\n"},
+    // {too_many_values, add_f_name, "too_many_values\n"},
+    // {(*too_many_values)(char *value){return 1;}, add_f_name, "too_many_values"},
+};
+
+typedef struct ErrorCode
+{
+    unsigned int first_name : 1;
+    unsigned int second_name : 1;
+    unsigned int id : 1;
+    unsigned int phone : 1;
+    unsigned int date : 1;
+    unsigned int debt : 1;
+} ErrorCode;
+
 typedef struct _List
 {
     Customer customer;
@@ -44,7 +88,7 @@ int comp_values(Customer *root, Customer *customer);
 int comp_date(Customer *customer_1, Customer *customer_2);
 void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to);
 void tree_in_order(BSTNode *root, void (*do_something)(Customer *customer, void *func, void *arg), void *func, void *arg);
-void add_date(char *str, Customer *customer);
+// void add_date(char *str, Customer *customer);
 void delete_debt_bst(BSTNode **root, int debt, unsigned int id);
 void free_all();
 void free_tree(BSTNode *root);
@@ -96,13 +140,59 @@ Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING 
         sprintf(&(line_str[0]), "error line %d: ", line);
     }
 
+    char *value;
+    unsigned int is_error = 0, column = 1, error_code = 0;
+
     str_to_lower(str);
     remove_white_spaces(str);
 
-    char *value;
     value = strtok(str, ",");
 
-    int is_error = 0, column = 1;
+    for (int i = 0; i < SIZEOF_VALUES; i++)
+    {
+        remove_white_spaces(value);
+        if (validations[i].valid_func(value))
+        {
+            if (!(validations[i].add_func(new, value)))
+            {
+                goto error;
+            }
+        }
+        else
+        {
+            error_code |= 1 << i;
+        }
+        value = strtok(NULL, ",");
+    }
+    // if (value)
+    // {
+    //     error_code |= 1 << SIZEOF_VALUES;
+    // }
+    if (error_code || value)
+    {
+        for (int i = 0; i < ARR_LEN(validations); i++)
+        {
+            if (error_code & 1 << i)
+            {
+                print(print_to, line_str);
+                print(print_to, validations[i].error_msg);
+            }
+        }
+        if (value)
+        {
+            print(print_to, line_str);
+            print(print_to, "too many values\n");
+        }
+        goto error;
+    }
+
+    return new;
+error:
+    free(new->first_name);
+    free(new->second_name);
+    free(new);
+    return NULL;
+
     for (int i = 0; i < 6; i++)
     {
         remove_white_spaces(value);
@@ -523,33 +613,33 @@ int comp_int(int first, int second)
     }
 }
 
-void add_date(char *str, Customer *customer)
-{
+// void add_date(char *str, Customer *customer)
+// {
 
-    char *ptr;
+//     char *ptr;
 
-    char *value = strtok_r(str, "/", &ptr);
-    int column = 1;
-    while (value)
-    {
-        switch (column)
-        {
-        case 1:
-            customer->date.day = atoi(value);
-            break;
-        case 2:
-            customer->date.month = atoi(value);
-            break;
-        case 3:
-            customer->date.year = atoi(value);
-            break;
-        default:
-            break;
-        }
-        value = strtok_r(NULL, "/", &ptr);
-        column++;
-    }
-}
+//     char *value = strtok_r(str, "/", &ptr);
+//     int column = 1;
+//     while (value)
+//     {
+//         switch (column)
+//         {
+//         case 1:
+//             customer->date.day = atoi(value);
+//             break;
+//         case 2:
+//             customer->date.month = atoi(value);
+//             break;
+//         case 3:
+//             customer->date.year = atoi(value);
+//             break;
+//         default:
+//             break;
+//         }
+//         value = strtok_r(NULL, "/", &ptr);
+//         column++;
+//     }
+// }
 
 int comp_values(Customer *root, Customer *comp)
 {
@@ -671,6 +761,7 @@ void free_tree(BSTNode *root)
     free_tree(root->left);
     free(root);
 }
+
 void free_list(List *head)
 {
     while (head)

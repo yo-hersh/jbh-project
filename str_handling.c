@@ -58,7 +58,7 @@ int is_not_only_char(char *str)
 
 int is_not_only_digit(char *str)
 {
-    while (str)
+    while (str[0])
     {
         if (str[0] < 48 || str[0] > 57)
         {
@@ -104,7 +104,7 @@ int valid_id(char *str)
         return 0;
     }
 
-    if (strlen(str) != 9 || !is_not_only_digit(str) || !(atoi(str) > 0))
+    if (strlen(str) != 9 || is_not_only_digit(str) || !(atoi(str) > 0))
     {
         return 0;
     }
@@ -119,7 +119,7 @@ int valid_phone(char *str)
         return 0;
     }
 
-    if (strlen(str) != 10 || !is_not_only_digit(str) || str[1] == '0' || str[0] != '0')
+    if (strlen(str) != 10 || is_not_only_digit(str) || str[1] == '0' || str[0] != '0')
     {
         return 0;
     }
@@ -133,8 +133,14 @@ int valid_debt(char *str)
     {
         return 0;
     }
+ 
+    // for - by the str[0] 
+    if (str[0] == 45)
+    {
+        str++;
+    }
 
-    if (!is_not_only_digit(str) || atoi(str) == 0)
+    if (is_not_only_digit(str) || atoi(str) == 0)
     {
         return 0;
     }
@@ -165,7 +171,7 @@ int valid_date(char *str)
 
     for (int i = 0; i < 3; i++)
     {
-        if (!value || !is_not_only_digit(value))
+        if (!value || is_not_only_digit(value))
         {
             goto exit;
         }
@@ -211,6 +217,11 @@ exit:
     return 0;
 }
 
+int too_many_values(char *str)
+{
+    return 0;
+}
+
 void stringify_customer(Customer *customer, char *str, unsigned int len)
 {
     snprintf(str, len, "%s, %s, %09d, 0%d, %02d/%02d/%d, %d\n", customer->first_name, customer->second_name,
@@ -231,7 +242,7 @@ void print_customer(Customer *customer, PRINT_HANDLING print, int print_to)
     free(str);
 }
 
-void print_to_stdout(int socket_id, char *str,...)
+void print_to_stdout(int socket_id, char *str, ...)
 {
     printf("%s", str);
 }
@@ -248,4 +259,70 @@ int buf_overflow(char *buf, PRINT_HANDLING print, int print_to)
         print(print_to, "overflow in buffer, max length is %s", BUF_LEN - 1);
         return 1;
     }
+}
+
+int add_f_name(Customer *customer, char *value)
+{
+    customer->first_name = calloc(strlen(value) + 1, sizeof(char));
+    if (!customer->first_name)
+    {
+        perror("error creating first name");
+        return 0;
+    }
+    strcpy(customer->first_name, value);
+    return 1;
+}
+int add_s_name(Customer *customer, char *value)
+{
+    customer->second_name = calloc(strlen(value) + 1, sizeof(char));
+    if (!customer->second_name)
+    {
+        perror("error creating second name");
+        return 0;
+    }
+    strcpy(customer->second_name, value);
+    return 1;
+}
+int add_id(Customer *customer, char *value)
+{
+    customer->id = atoi(value);
+    return 1;
+}
+int add_phone(Customer *customer, char *value)
+{
+    customer->phone = atoi(value);
+    return 1;
+}
+int add_debt(Customer *customer, char *value)
+{
+    customer->debt = atoi(value);
+    return 1;
+}
+int add_date(Customer *customer, char *value)
+{
+
+    char *ptr;
+
+    char *t_value = strtok_r(value, "/", &ptr);
+    int column = 1;
+    while (t_value)
+    {
+        switch (column)
+        {
+        case 1:
+            customer->date.day = atoi(t_value);
+            break;
+        case 2:
+            customer->date.month = atoi(t_value);
+            break;
+        case 3:
+            customer->date.year = atoi(t_value);
+            break;
+        default:
+            break;
+        }
+        t_value = strtok_r(NULL, "/", &ptr);
+        column++;
+    }
+    return 1;
 }
