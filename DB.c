@@ -18,22 +18,6 @@
 // The program compares a new customer with all customers by traversing the debt BST,
 // and uses the print function to print the result by debt BST.
 
-// typedef struct ValidationFunctions
-// {
-//     int (*valid_name)(char *);
-//     int (*valid_id)(char *);
-//     int (*valid_phone)(char *);
-//     int (*valid_date)(char *);
-//     int (*valid_debt)(char *);
-// } ValidationFunctions;
-
-// const ValidationFunctions validations = {
-//     valid_name,
-//     valid_id,
-//     valid_phone,
-//     valid_date,
-//     valid_debt};
-
 typedef struct Validation
 {
     int (*valid_func)(char *value);
@@ -48,19 +32,7 @@ Validation validations[] = {
     {valid_phone, add_phone, "phone required to be 10 digits only, start by 0\n"},
     {valid_date, add_date, "date required to be in dd/mm/yyyy format between 1970-2100\n"},
     {valid_debt, add_debt, "debt required to be digits only\n"},
-    // {too_many_values, add_f_name, "too_many_values\n"},
-    // {(*too_many_values)(char *value){return 1;}, add_f_name, "too_many_values"},
 };
-
-typedef struct ErrorCode
-{
-    unsigned int first_name : 1;
-    unsigned int second_name : 1;
-    unsigned int id : 1;
-    unsigned int phone : 1;
-    unsigned int date : 1;
-    unsigned int debt : 1;
-} ErrorCode;
 
 typedef struct _List
 {
@@ -88,7 +60,6 @@ int comp_values(Customer *root, Customer *customer);
 int comp_date(Customer *customer_1, Customer *customer_2);
 void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to);
 void tree_in_order(BSTNode *root, void (*do_something)(Customer *customer, void *func, void *arg), void *func, void *arg);
-// void add_date(char *str, Customer *customer);
 void delete_debt_bst(BSTNode **root, int debt, unsigned int id);
 void free_all();
 void free_tree(BSTNode *root);
@@ -134,18 +105,16 @@ Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING 
         return NULL;
     }
 
-    char line_str[30] = {0}, error_msg[MSG_LEN] = {0};
+    char *value;
+    unsigned int error_code = 0;
+    char line_str[30] = {0};
     if (line)
     {
         sprintf(&(line_str[0]), "error line %d: ", line);
     }
 
-    char *value;
-    unsigned int is_error = 0, column = 1, error_code = 0;
-
     str_to_lower(str);
     remove_white_spaces(str);
-
     value = strtok(str, ",");
 
     for (int i = 0; i < SIZEOF_VALUES; i++)
@@ -164,10 +133,7 @@ Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING 
         }
         value = strtok(NULL, ",");
     }
-    // if (value)
-    // {
-    //     error_code |= 1 << SIZEOF_VALUES;
-    // }
+
     if (error_code || value)
     {
         for (int i = 0; i < ARR_LEN(validations); i++)
@@ -192,117 +158,6 @@ error:
     free(new->second_name);
     free(new);
     return NULL;
-
-    for (int i = 0; i < 6; i++)
-    {
-        remove_white_spaces(value);
-        switch (column)
-        {
-        case 1:
-            if (valid_name(value))
-            {
-                new->first_name = calloc(strlen(value) + 1, sizeof(char));
-                if (!new->first_name)
-                {
-                    perror("error creating first name");
-                    return NULL;
-                }
-
-                strcpy(new->first_name, value);
-            }
-            else
-            {
-                // sprintf((error_msg), "%sfirst name required to be letters only, at least 2\n", line_str);
-                print(print_to, "%sfirst name required to be letters only, at least 2\n", line_str);
-                is_error = 1;
-            }
-            break;
-        case 2:
-            if (valid_name(value))
-            {
-                new->second_name = calloc(strlen(value) + 1, sizeof(char));
-                if (!new->second_name)
-                {
-                    perror("error creating last name");
-                    return NULL;
-                }
-                strcpy(new->second_name, value);
-            }
-            else
-            {
-                // sprintf((error_msg), "%ssecond name required to be letters only, at least 2\n", line_str);
-                print(print_to, "%ssecond name required to be letters only, at least 2\n", line_str);
-                is_error = 1;
-            }
-            break;
-        case 3:
-            if (valid_id(value))
-            {
-                new->id = atoi(value);
-            }
-            else
-            {
-                sprintf((error_msg), "%sid required to be 9 digits only\n", line_str);
-                print(print_to, error_msg);
-                is_error = 1;
-            }
-            break;
-        case 4:
-            if (valid_phone(value))
-            {
-                new->phone = atoi(value);
-            }
-            else
-            {
-                sprintf((error_msg), "%sphone required to be 10 digits only, start by 0\n", line_str);
-                print(print_to, error_msg);
-                is_error = 1;
-            }
-            break;
-        case 5:
-            if (valid_date(value))
-            {
-                add_date(value, new);
-            }
-            else
-            {
-                sprintf((error_msg), "%sdate required to be in dd/mm/yyyy format between 1970-2100\n", line_str);
-                print(print_to, error_msg);
-                is_error = 1;
-            }
-            break;
-        case 6:
-            if (valid_debt(value))
-            {
-                new->debt = atoi(value);
-            }
-            else
-            {
-                sprintf((error_msg), "%sdebt required to be digits only\n", line_str);
-                print(print_to, error_msg);
-                is_error = 1;
-            }
-            break;
-        }
-
-        column++;
-        value = strtok(NULL, ",");
-    }
-    if (value)
-    {
-        sprintf((error_msg), "%stoo many parameters\n", line_str);
-        print(print_to, error_msg);
-        is_error = 1;
-    }
-    if (is_error)
-    {
-        free(new->first_name);
-        free(new->second_name);
-        free(new);
-        return NULL;
-    }
-
-    return new;
 }
 
 int add_new(Customer *new, PRINT_HANDLING print, int print_to)
@@ -478,81 +333,19 @@ Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING pri
         return NULL;
     }
 
-    switch (index)
+    if (validations[index].valid_func(str))
     {
-    case 0:
-        if (valid_name(str))
+        if (!validations[index].add_func(new, str))
         {
-            new->first_name = str;
+            goto error;
         }
         else
         {
-            print(print_to, "first name required to be letters only, at least 2\n");
-            goto exit;
+            return new;
         }
-        break;
-    case 1:
-        if (valid_name(str))
-        {
-            new->second_name = str;
-        }
-        else
-        {
-            print(print_to, "second name required to be letters only, at least 2\n");
-            goto exit;
-        }
-        break;
-    case 2:
-        if (valid_id(str))
-        {
-            new->id = atoi(str);
-        }
-        else
-        {
-            print(print_to, "id required to be 9 digits only\n");
-            goto exit;
-        }
-        break;
-    case 3:
-        if (valid_phone(str))
-        {
-            new->phone = atoi(str);
-        }
-        else
-        {
-            print(print_to, "phone required to be 10 digits only, start by 0\n");
-            goto exit;
-        }
-        break;
-    case 4:
-        if (valid_date(str))
-        {
-            add_date(str, new);
-        }
-        else
-        {
-            print(print_to, "date required to be in dd/mm/yyyy format between 1970-2100\n");
-            goto exit;
-        }
-        break;
-    case 5:
-        if (valid_debt(str))
-        {
-            new->debt = atoi(str);
-        }
-        else
-        {
-            print(print_to, "debt required to be digits only\n");
-            goto exit;
-        }
-        break;
     }
-
-    return new;
-exit:
-    free(new->first_name);
-    free(new->second_name);
-    free(new);
+    print(print_to, validations[index].error_msg);
+error:
     return NULL;
 }
 
@@ -613,34 +406,6 @@ int comp_int(int first, int second)
     }
 }
 
-// void add_date(char *str, Customer *customer)
-// {
-
-//     char *ptr;
-
-//     char *value = strtok_r(str, "/", &ptr);
-//     int column = 1;
-//     while (value)
-//     {
-//         switch (column)
-//         {
-//         case 1:
-//             customer->date.day = atoi(value);
-//             break;
-//         case 2:
-//             customer->date.month = atoi(value);
-//             break;
-//         case 3:
-//             customer->date.year = atoi(value);
-//             break;
-//         default:
-//             break;
-//         }
-//         value = strtok_r(NULL, "/", &ptr);
-//         column++;
-//     }
-// }
-
 int comp_values(Customer *root, Customer *comp)
 {
     if (comp->first_name)
@@ -667,6 +432,7 @@ int comp_values(Customer *root, Customer *comp)
     {
         return comp_date(root, comp);
     }
+    return 1; 
 }
 
 int comp_date(Customer *customer_1, Customer *customer_2)

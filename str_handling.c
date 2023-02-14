@@ -217,11 +217,6 @@ exit:
     return 0;
 }
 
-int too_many_values(char *str)
-{
-    return 0;
-}
-
 void stringify_customer(Customer *customer, char *str, unsigned int len)
 {
     snprintf(str, len, "%s, %s, %09d, 0%d, %02d/%02d/%d, %d\n", customer->first_name, customer->second_name,

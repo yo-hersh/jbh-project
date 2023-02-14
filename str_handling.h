@@ -14,14 +14,6 @@ typedef enum{
     SET, SELECT, SIZEOF_OPTIONS = 2
 }OPTIONS_E;
 
-// const char *error_msgs[] = {
-//   "first name required to be letters only, at least 2\n",
-//   "id required to be 9 digits only\n",
-//   "phone required to be 10 digits only, start by 0\n",
-//   "date required to be in dd/mm/yyyy format between 1970-2100\n",
-//   "debt required to be digits only\n"
-// };
-
 #define ARR_LEN(_arr) (sizeof(_arr) / sizeof(_arr[0]))
 
 void remove_white_spaces(char *str);
@@ -43,7 +35,5 @@ int add_id( Customer *customer, char *value);
 int add_phone( Customer *customer, char *value);
 int add_date(Customer *customer, char *value);
 int add_debt( Customer *customer, char *value);
-int too_many_values(char *str);
-
 
 #endif
