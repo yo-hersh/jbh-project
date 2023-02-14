@@ -50,7 +50,7 @@ static List *head = NULL, *tail = NULL;
 static BSTNode *sort_by_id_root = NULL;
 static BSTNode *sort_by_debt_root = NULL;
 
-int add_new(Customer *new, PRINT_HANDLING print, int print_to);
+int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line);
 int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 void add_to_debt_BST(BSTNode **root, List *list);
 void add_to_id_BST(BSTNode **root, List *list);
@@ -91,7 +91,7 @@ int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int prin
     Customer *new = create_customer_from_str(str, line, print, print_to);
     if (new)
     {
-        return add_new(new, print, print_to);
+        return add_new(new, print, print_to, line);
     }
     return 1;
 }
@@ -160,7 +160,7 @@ error:
     return NULL;
 }
 
-int add_new(Customer *new, PRINT_HANDLING print, int print_to)
+int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line)
 {
     int ret = 0;
     // check is the id is already exits
@@ -174,8 +174,14 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to)
     }
     else
     {
+        char line_str[30] = {0};
+        if (line)
+        {
+            sprintf(&(line_str[0]), "error line %d: ", line);
+        }
         if (strcmp(found->list->customer.first_name, new->first_name))
         {
+            print(print_to, line_str);
             print(print_to, "the first name is not equal to the name in the DB\n");
             ret = 1;
             goto free;
@@ -183,6 +189,7 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to)
 
         if (strcmp(found->list->customer.second_name, new->second_name))
         {
+            print(print_to, line_str);
             print(print_to, "the second name is not equal to the name in the DB\n");
             ret = 1;
             goto free;
@@ -432,7 +439,7 @@ int comp_values(Customer *root, Customer *comp)
     {
         return comp_date(root, comp);
     }
-    return 1; 
+    return 1;
 }
 
 int comp_date(Customer *customer_1, Customer *customer_2)
