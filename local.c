@@ -1,16 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include "str_handling.h"
 #include "DB.h"
 #include "users_input.h"
 
 int main(int argc, char const *argv[])
 {
-    // char *display_option = "\n--please select option: set <value> / select <value> / print\n--use <option> --help to see more\n--type quit to exit\n";
-    // char *select_help = "--select <value> <operation> <everything>.\n";
-    // char *set_help = "--set <value> = <everything>.\n";
-    // char *values_help = "--values: first name, last name, id, phone, date, debt.\n";
+    signal(SIGINT, int_handler);
 
     if (argc < 2)
     {
@@ -30,11 +28,15 @@ int main(int argc, char const *argv[])
     char buf[200] = {0};
     while (1)
     {
-        printf("%s", display_option);
+        printf("%s", massage);
         fgets(buf, sizeof(buf), stdin);
         if (!strcmp(buf, "quit\n"))
         {
             break;
+        }
+        if (!strcmp(buf, "halp"))
+        {
+            printf("%s", display_option);
         }
         if (!strcmp(buf, "print\n"))
         {
@@ -61,13 +63,14 @@ int main(int argc, char const *argv[])
         }
     }
 
-    printf("see you, let's have a nice day\n");
+    printf("See you, thanks for using the DB program\n");
     free_all();
     return EXIT_SUCCESS;
 }
 
-// // socket_id is not using, only for network program - as a ref func
-// void print_to_stdout(int socket_id, char *str)
-// {
-//     printf("%s", str);
-// }
+void int_handler(int sig)
+{
+    free_all();
+    printf("\nexiting....\n");
+    exit(0);
+}
