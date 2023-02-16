@@ -167,9 +167,9 @@ int valid_date(char *str)
 
     unsigned int day, month, year;
     char *value = strtok_r(temp_str, "/", &ptr);
-    int column = 1;
+    int column = 0;
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < SIZEOF_DATES; i++)
     {
         if (!value || is_not_only_digit(value))
         {
@@ -178,29 +178,26 @@ int valid_date(char *str)
 
         switch (column)
         {
-        case 1:
+        case DAY:
             day = atoi(value);
             if (day <= 0 || day > 31)
             {
                 goto exit;
             }
             break;
-        case 2:
+        case MONTH:
             month = atoi(value);
             if (month <= 0 || month > 12)
             {
                 goto exit;
             }
             break;
-        case 3:
+        case YEAR:
             year = atoi(value);
             if (year <= 1970 || year > 2100)
             {
                 goto exit;
             }
-            break;
-        default:
-            goto exit;
             break;
         }
         value = strtok_r(NULL, "/", &ptr);
@@ -237,7 +234,7 @@ void print_customer(Customer *customer, PRINT_HANDLING print, int print_to)
     free(str);
 }
 
-void print_to_stdout(int socket_id, char *str)
+void print_to_stdout(int socket_id,const char *str)
 {
     printf("%s", str);
 }
@@ -304,16 +301,14 @@ int add_date(Customer *customer, char *value)
     {
         switch (column)
         {
-        case 1:
+        case DAY:
             customer->date.day = atoi(t_value);
             break;
-        case 2:
+        case MONTH:
             customer->date.month = atoi(t_value);
             break;
-        case 3:
+        case YEAR:
             customer->date.year = atoi(t_value);
-            break;
-        default:
             break;
         }
         t_value = strtok_r(NULL, "/", &ptr);

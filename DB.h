@@ -18,7 +18,7 @@ typedef struct
     Date date;
     int debt;
 } Customer;
-typedef void (*PRINT_HANDLING)(int, char *, ...);
+typedef void (*PRINT_HANDLING)(int,const char *);
 
 void create_list(FILE *file);
 void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);

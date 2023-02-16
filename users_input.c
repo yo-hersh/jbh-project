@@ -5,8 +5,6 @@
 #include "DB.h"
 #include "str_handling.h"
 
-// #define ARR_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
-
 const char *values_arr[] = {"first name", "second name", "id", "phone", "date", "debt"};
 const char *oper_arr[] = {">", "<", "!=", "="};
 const char *options_arr[] = {"select", "set"};
@@ -18,23 +16,23 @@ void user_str(char *str, PRINT_HANDLING print, int print_to)
 {
     str_to_lower(str);
     remove_white_spaces(str);
-    for (int i = 0; i < ARR_LEN(options_arr); i++)
+    for (int i = 0; i < SIZEOF_OPTIONS; i++)
     {
         unsigned int len = strlen(options_arr[i]);
         if (!memcmp(str, options_arr[i], len))
         {
             switch (i)
             {
-            case 0:
+            case SET:
                 str += len;
                 select_handling(str, print, print_to);
                 break;
-            case 1:
+            case SELECT:
                 str += len;
                 set_handling(str, print, print_to);
                 break;
             default:
-                print(print_to, "invalid used. use: set / select / print only\n");
+                print(print_to, "invalid used.\nuse: set / select / print only\n");
                 break;
             }
         }
@@ -50,7 +48,7 @@ void select_handling(char *str, PRINT_HANDLING print, int print_to)
         str++;
     }
 
-    for (i = 0; i < ARR_LEN(values_arr); i++)
+    for (i = 0; i < SIZEOF_VALUES; i++)
     {
         unsigned int len = strlen(values_arr[i]);
         if (!memcmp(str, values_arr[i], len))
@@ -60,7 +58,7 @@ void select_handling(char *str, PRINT_HANDLING print, int print_to)
             break;
         }
     }
-    if (i == ARR_LEN(values_arr))
+    if (i == SIZEOF_VALUES)
     {
         print(print_to, "use one of the given values only\n");
         return;
