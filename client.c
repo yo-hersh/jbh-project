@@ -38,24 +38,24 @@ int main(int argc, char **argv)
             continue;
         }
         
-        if (!strcmp(temp_buf, "halp\n"))
+        if (!strcmp(temp_buf, "halp"))
         {
             printf("%s", display_option);
         }
-        else if (!strcmp(temp_buf, "select --help\n"))
+        else if (!strcmp(temp_buf, "select --help"))
         {
             printf("%s%s", select_help, values_help);
         }
-        else if (!strcmp(temp_buf, "set --help\n"))
+        else if (!strcmp(temp_buf, "set --help"))
         {
             printf("%s%s", set_help, values_help);
         }
-        else if (!strcmp(temp_buf, "quit\n"))
+        else if (!strcmp(temp_buf, "quit"))
         {
-            puts("see you, lets have a nice day");
+            puts("See you, thanks for using the DB program");
             return EXIT_SUCCESS;
         }
-        else if (!strcmp(temp_buf, "send\n"))
+        else if (!strcmp(temp_buf, "send"))
         {
             break;
         }
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 
     for (i = 0; buffer[i][0]; i++)
     {
-        n = send(sockfd[i], buffer[i], strlen(buffer[i]) - 1, 0);
+        n = send(sockfd[i], buffer[i], strlen(buffer[i]), 0);
         if (n < 0)
         {
             perror("Client error sending data");
