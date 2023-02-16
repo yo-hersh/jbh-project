@@ -71,15 +71,14 @@ BSTNode *find_by_id(BSTNode *root, unsigned int id);
 
 void create_list(FILE *file)
 {
-    char buf[BUF_LEN];
+    char buf[BUF_LEN] = {0};
     unsigned int line = 0;
     while (fgets(buf, BUF_LEN, file))
     {
-        if (buf_overflow(buf, print_to_stdout, 0))
+        if (buf[strlen(buf) - 1] == '\n')
         {
-            continue;
+            buf[strlen(buf) - 1] = '\0';
         }
-
         create_customer(buf, ++line, print_to_stdout, 0);
     }
     fclose(file);
