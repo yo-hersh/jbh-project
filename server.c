@@ -12,8 +12,7 @@
 
 void *conn_handler(void *args);
 void send_error_invalid(int socket_id);
-void send_to_client(int socket_id, char *str, ...);
-// void print_to_stdout(int socket_id, char *str);
+void send_to_client(int socket_id, const char *str);
 void int_handler(int sig);
 
 int main(int argc, char **argv)
@@ -73,9 +72,8 @@ int main(int argc, char **argv)
             return EXIT_FAILURE;
         }
 
-        // the value and not &new_sock, because if not using join, is will changed by the next thread
-        // it's get a warning for add a value as a pointer
-        pthread_create(&tid, NULL, conn_handler, (void *)new_sock);
+        // send the location of new_sock because I'm using a join, so it's safe to say it won't change throughout the thread
+        pthread_create(&tid, NULL, conn_handler, &new_sock);
         pthread_join(tid, NULL);
     }
     free_all();
@@ -86,7 +84,7 @@ int main(int argc, char **argv)
 void *conn_handler(void *args)
 {
     char buf[BUF_LEN] = {0};
-    int new_sock = (int)args;
+    int new_sock = *((int *)args);
     int n, r = 0;
 
     do
@@ -112,9 +110,9 @@ void *conn_handler(void *args)
     }
     else
     {
-        if (buf_overflow(buf, send_to_client, new_sock))
+        if (buf[strlen(buf) - 1] == '\n')
         {
-            goto exit;
+            buf[strlen(buf) - 1] = '\0';
         }
         if (buf[0])
         {
@@ -127,7 +125,7 @@ exit:
     return NULL;
 }
 
-void send_to_client(int socket_id, char *str, ...)
+void send_to_client(int socket_id, const char *str)
 {
     int n;
     n = send(socket_id, str, strlen(str), 0);
