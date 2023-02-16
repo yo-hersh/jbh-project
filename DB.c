@@ -67,6 +67,7 @@ Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING 
 Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING print, int print_to);
 BSTNode *find_by_id(BSTNode *root, unsigned int id);
 typedef int (*COMPARE_FUNC)(List *, List *);
+void add_to_bst(BSTNode **root, List *list, COMPARE_FUNC compare_func);
 int compare_by_id(List *list1, List *list2);
 int compare_by_debt(List *list1, List *list2);
 
@@ -204,8 +205,8 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line
         {
             list->customer.date = new->date;
         }
-
-        add_to_debt_BST(&sort_by_debt_root, list);
+        
+        add_to_bst(&sort_by_debt_root,list,compare_by_debt);
     free:
         free(new->first_name);
         free(new->second_name);
