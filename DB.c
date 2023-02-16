@@ -52,8 +52,6 @@ static BSTNode *sort_by_debt_root = NULL;
 
 int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line);
 int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
-void add_to_debt_BST(BSTNode **root, List *list);
-void add_to_id_BST(BSTNode **root, List *list);
 void add_debt_in_tail(Customer *customer);
 void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
 int comp_values(Customer *root, Customer *customer);
@@ -68,6 +66,10 @@ BSTNode *max_bst(BSTNode *root);
 Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING print, int print_to);
 BSTNode *find_by_id(BSTNode *root, unsigned int id);
+typedef int (*COMPARE_FUNC)(List *, List *);
+int compare_by_id(List *list1, List *list2);
+int compare_by_debt(List *list1, List *list2);
+
 
 void create_list(FILE *file)
 {
@@ -88,7 +90,7 @@ void create_list(FILE *file)
 int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to)
 {
     Customer *new = create_customer_from_str(str, line, print, print_to);
-    if (new)
+    if (new) // if all validations passed successfully
     {
         return add_new(new, print, print_to, line);
     }
@@ -162,14 +164,14 @@ error:
 int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line)
 {
     int ret = 0;
-    // check is the id is already exits
+    // check is the id is already exits by the db
     BSTNode *found = find_by_id(sort_by_id_root, new->id);
 
     if (!found)
     {
         add_debt_in_tail(new);
-        add_to_id_BST(&sort_by_id_root, tail);
-        add_to_debt_BST(&sort_by_debt_root, tail);
+        add_to_bst(&sort_by_id_root, tail, compare_by_id);
+        add_to_bst(&sort_by_debt_root, tail, compare_by_debt);
     }
     else
     {
@@ -236,53 +238,28 @@ void add_debt_in_tail(Customer *customer)
     }
 }
 
-void add_to_id_BST(BSTNode **id_root, List *list)
+void add_to_bst(BSTNode **root, List *list, COMPARE_FUNC compare_func)
 {
-    if (*id_root == NULL)
+    if (*root == NULL)
     {
-        *id_root = calloc(1, sizeof(BSTNode));
-        if (!id_root)
+        *root = calloc(1, sizeof(BSTNode));
+        if (!*root)
         {
-            perror("error creating new id_bst");
+            perror("error creating new bst node");
             return;
         }
 
-        (*id_root)->list = list;
+        (*root)->list = list;
         return;
     }
 
-    if (list->customer.id <= (*id_root)->list->customer.id)
+    if (compare_func(list, (*root)->list) <= 0)
     {
-        add_to_id_BST(&((*id_root)->left), list);
+        add_to_bst(&((*root)->left), list, compare_func);
     }
     else
     {
-        add_to_id_BST(&((*id_root)->right), list);
-    }
-}
-
-void add_to_debt_BST(BSTNode **debt_root, List *list)
-{
-    if (*debt_root == NULL)
-    {
-        *debt_root = calloc(1, sizeof(BSTNode));
-        if (!debt_root)
-        {
-            perror("error creating new debt_bst");
-            return;
-        }
-
-        (*debt_root)->list = list;
-        return;
-    }
-
-    if (list->customer.debt <= (*debt_root)->list->customer.debt)
-    {
-        add_to_debt_BST(&((*debt_root)->left), list);
-    }
-    else
-    {
-        add_to_debt_BST(&((*debt_root)->right), list);
+        add_to_bst(&((*root)->right), list, compare_func);
     }
 }
 
@@ -508,6 +485,38 @@ void delete_debt_bst(BSTNode **root, int debt, unsigned int id)
         {
             delete_debt_bst(&((*root)->right), debt, id);
         }
+    }
+}
+
+int compare_by_id(List *list1, List *list2)
+{
+    if (list1->customer.id < list2->customer.id)
+    {
+        return -1;
+    }
+    else if (list1->customer.id > list2->customer.id)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int compare_by_debt(List *list1, List *list2)
+{
+    if (list1->customer.debt < list2->customer.debt)
+    {
+        return -1;
+    }
+    else if (list1->customer.debt > list2->customer.debt)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
     }
 }
 
