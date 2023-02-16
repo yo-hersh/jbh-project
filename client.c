@@ -11,12 +11,6 @@
 
 int main(int argc, char **argv)
 {
-    char *display_option = "--please select options: set <value> / select <value> / print\n--use <option> --help to see more\n--type quit to exit\n";
-    char *select_help = "--select <value> <operation> <everything>.\n";
-    char *set_help = "--set <value> = <everything>.\n";
-    char *values_help = "--values: first name, last name, id, phone, date, debt.\n";
-    char *massage = "--------------------STORE DATABASE---------------------\n--Enter a 5 messages, to send it enter send. for options enter halp\n";
-
     int sockfd[CONNECT_NUM];
     struct sockaddr_in serv_addr;
     char buffer[CONNECT_NUM][BUF_LEN] = {0};

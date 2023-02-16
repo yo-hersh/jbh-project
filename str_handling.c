@@ -237,7 +237,7 @@ void print_customer(Customer *customer, PRINT_HANDLING print, int print_to)
     free(str);
 }
 
-void print_to_stdout(int socket_id, char *str, ...)
+void print_to_stdout(int socket_id, char *str)
 {
     printf("%s", str);
 }
@@ -251,7 +251,7 @@ int buf_overflow(char *buf, PRINT_HANDLING print, int print_to)
     }
     else
     {
-        print(print_to, "overflow in buffer, max length is %s", BUF_LEN - 1);
+        print(print_to, "buffer overflow\n");
         return 1;
     }
 }

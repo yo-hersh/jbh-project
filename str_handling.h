@@ -6,13 +6,29 @@
 #define BUF_LEN 1024
 #define MSG_LEN 200
 
-typedef enum{
-    FIRST_NAME, SECOND_NAME, ID, PHONE, DATE, DEBT, SIZEOF_VALUES = 6
-}VALUES_E;
+typedef enum
+{
+    FIRST_NAME,
+    SECOND_NAME,
+    ID,
+    PHONE,
+    DATE,
+    DEBT,
+    SIZEOF_VALUES = 6
+} VALUES_E;
 
-typedef enum{
-    SET, SELECT, SIZEOF_OPTIONS = 2
-}OPTIONS_E;
+typedef enum
+{
+    SET,
+    SELECT,
+    SIZEOF_OPTIONS = 2
+} OPTIONS_E;
+
+static const char *display_option = "--please select options: set <value> / select <value> / print\n--use <option> --help to see more\n--type quit to exit\n";
+static const char *select_help = "--select <value> <operation> <everything>.\n";
+static const char *set_help = "--set <value> = <everything>.\n";
+static const char *values_help = "--values: first name, last name, id, phone, date, debt.\n";
+static const char *massage = "--------------------STORE DATABASE---------------------\n--Enter a 5 messages, to send it enter send. for options enter halp\n";
 
 #define ARR_LEN(_arr) (sizeof(_arr) / sizeof(_arr[0]))
 
@@ -28,12 +44,12 @@ int is_not_only_char(char *str);
 int buf_overflow(char *buf, PRINT_HANDLING print, int print_to);
 void stringify_customer(Customer *customer, char *str, unsigned int len);
 void print_customer(Customer *customer, PRINT_HANDLING print, int print_to);
-void print_to_stdout(int socket_id, char *str, ...);
-int add_f_name( Customer *customer, char *value);
-int add_s_name( Customer *customer, char *value);
-int add_id( Customer *customer, char *value);
-int add_phone( Customer *customer, char *value);
+void print_to_stdout(int socket_id, char *str);
+int add_f_name(Customer *customer, char *value);
+int add_s_name(Customer *customer, char *value);
+int add_id(Customer *customer, char *value);
+int add_phone(Customer *customer, char *value);
 int add_date(Customer *customer, char *value);
-int add_debt( Customer *customer, char *value);
+int add_debt(Customer *customer, char *value);
 
 #endif
