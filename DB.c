@@ -54,9 +54,9 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line
 int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 void add_debt_in_tail(Customer *customer);
 void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
-int comp_values(Customer *root, Customer *customer);
+int comp_values(Customer *root, Customer *customer, unsigned int index);
 int comp_date(Customer *customer_1, Customer *customer_2);
-void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to);
+void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to, unsigned int index);
 void tree_in_order(BSTNode *root, void (*do_something)(Customer *customer, void *func, void *arg), void *func, void *arg);
 void delete_debt_bst(BSTNode **root, int debt, unsigned int id);
 void free_all();
@@ -70,7 +70,6 @@ typedef int (*COMPARE_FUNC)(List *, List *);
 void add_to_bst(BSTNode **root, List *list, COMPARE_FUNC compare_func);
 int compare_by_id(List *list1, List *list2);
 int compare_by_debt(List *list1, List *list2);
-
 
 void create_list(FILE *file)
 {
@@ -165,7 +164,7 @@ error:
 int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line)
 {
     int ret = 0;
-    // check is the id is already exits by the db
+    // check is the id is already exits in the db
     BSTNode *found = find_by_id(sort_by_id_root, new->id);
 
     if (!found)
@@ -205,8 +204,8 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line
         {
             list->customer.date = new->date;
         }
-        
-        add_to_bst(&sort_by_debt_root,list,compare_by_debt);
+
+        add_to_bst(&sort_by_debt_root, list, compare_by_debt);
     free:
         free(new->first_name);
         free(new->second_name);
@@ -303,7 +302,7 @@ void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print
     Customer *new = create_comp_customer(str, index, print, print_to);
     if (new)
     {
-        comp_in_tree(sort_by_debt_root, new, oper, print, print_to);
+        comp_in_tree(sort_by_debt_root, new, oper, print, print_to, index);
         free(new);
     }
 }
@@ -333,15 +332,15 @@ error:
     return NULL;
 }
 
-void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to)
+void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to, unsigned int index)
 {
     if (!root)
     {
         return;
     }
 
-    comp_in_tree(root->left, customer, oper, print, print_to);
-    int ret = comp_values(&(root->list->customer), customer);
+    comp_in_tree(root->left, customer, oper, print, print_to, index);
+    int ret = comp_values(&(root->list->customer), customer, index);
     if (strstr(oper, ">"))
     {
         if (ret > 0)
@@ -371,7 +370,7 @@ void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING 
         }
     }
 
-    comp_in_tree(root->right, customer, oper, print, print_to);
+    comp_in_tree(root->right, customer, oper, print, print_to, index);
 }
 
 int comp_int(int first, int second)
@@ -390,33 +389,25 @@ int comp_int(int first, int second)
     }
 }
 
-int comp_values(Customer *root, Customer *comp)
+int comp_values(Customer *root, Customer *comp, unsigned int value)
 {
-    if (comp->first_name)
+    switch (value)
     {
+    case FIRST_NAME:
         return strcmp(root->first_name, comp->first_name);
-    }
-    else if (comp->second_name)
-    {
+    case SECOND_NAME:
         return strcmp(root->second_name, comp->second_name);
-    }
-    else if (comp->id)
-    {
+    case ID:
         return comp_int(root->id, comp->id);
-    }
-    else if (comp->phone)
-    {
+    case PHONE:
         return comp_int(root->phone, comp->phone);
-    }
-    else if (comp->debt)
-    {
-        return comp_int(root->debt, comp->debt);
-    }
-    else if (comp->date.year)
-    {
+    case DATE:
         return comp_date(root, comp);
+    case DEBT:
+        return comp_int(root->debt, comp->debt);
+    default:
+        return 1;
     }
-    return 1;
 }
 
 int comp_date(Customer *customer_1, Customer *customer_2)
