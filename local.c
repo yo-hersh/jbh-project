@@ -6,6 +6,8 @@
 #include "DB.h"
 #include "users_input.h"
 
+void int_handler(int sig);
+
 int main(int argc, char const *argv[])
 {
     signal(SIGINT, int_handler);
