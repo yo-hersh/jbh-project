@@ -34,6 +34,8 @@ Validation validations[] = {
     {valid_debt, add_debt, "debt required to be digits only\n"},
 };
 
+#define BIT(i) (1 << i)
+
 typedef struct _List
 {
     Customer customer;
@@ -53,10 +55,10 @@ static BSTNode *sort_by_debt_root = NULL;
 int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line);
 int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 void add_debt_in_tail(Customer *customer);
-void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to);
-int comp_values(Customer *root, Customer *customer, unsigned int index);
+void compare_str(char *str, char *oper, VALUES_E field, PRINT_HANDLING print, int print_to);
+int comp_values(Customer *root, Customer *customer, VALUES_E field);
 int comp_date(Customer *customer_1, Customer *customer_2);
-void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to, unsigned int index);
+void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to, VALUES_E field);
 void tree_in_order(BSTNode *root, void (*do_something)(Customer *customer, void *func, void *arg), void *func, void *arg);
 void delete_debt_bst(BSTNode **root, int debt, unsigned int id);
 void free_all();
@@ -64,7 +66,7 @@ void free_tree(BSTNode *root);
 void free_list(List *head);
 BSTNode *max_bst(BSTNode *root);
 Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
-Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING print, int print_to);
+Customer *create_comp_customer(char *str, VALUES_E field, PRINT_HANDLING print, int print_to);
 BSTNode *find_by_id(BSTNode *root, unsigned int id);
 typedef int (*COMPARE_FUNC)(List *, List *);
 void add_to_bst(BSTNode **root, List *list, COMPARE_FUNC compare_func);
@@ -111,7 +113,7 @@ Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING 
     char line_str[30] = {0};
     if (line)
     {
-        sprintf(&(line_str[0]), "error line %d: ", line);
+        sprintf(line_str, "error line %d: ", line);
     }
 
     str_to_lower(str);
@@ -130,7 +132,7 @@ Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING 
         }
         else
         {
-            error_code |= 1 << i;
+            error_code |= BIT(i);
         }
         value = strtok(NULL, ",");
     }
@@ -139,7 +141,7 @@ Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING 
     {
         for (int i = 0; i < ARR_LEN(validations); i++)
         {
-            if (error_code & 1 << i)
+            if (error_code & BIT(i))
             {
                 print(print_to, line_str);
                 print(print_to, validations[i].error_msg);
@@ -297,17 +299,17 @@ BSTNode *find_by_id(BSTNode *root, unsigned int id)
     }
 }
 
-void compare_str(char *str, char *oper, unsigned int index, PRINT_HANDLING print, int print_to)
+void compare_str(char *str, char *oper, VALUES_E field, PRINT_HANDLING print, int print_to)
 {
-    Customer *new = create_comp_customer(str, index, print, print_to);
+    Customer *new = create_comp_customer(str, field, print, print_to);
     if (new)
     {
-        comp_in_tree(sort_by_debt_root, new, oper, print, print_to, index);
+        comp_in_tree(sort_by_debt_root, new, oper, print, print_to, field);
         free(new);
     }
 }
 
-Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING print, int print_to)
+Customer *create_comp_customer(char *str, VALUES_E field, PRINT_HANDLING print, int print_to)
 {
     Customer *new = calloc(1, sizeof(Customer));
     if (!new)
@@ -316,9 +318,9 @@ Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING pri
         return NULL;
     }
 
-    if (validations[index].valid_func(str))
+    if (validations[field].valid_func(str))
     {
-        if (!validations[index].add_func(new, str))
+        if (!validations[field].add_func(new, str))
         {
             goto error;
         }
@@ -327,20 +329,20 @@ Customer *create_comp_customer(char *str, unsigned int index, PRINT_HANDLING pri
             return new;
         }
     }
-    print(print_to, validations[index].error_msg);
+    print(print_to, validations[field].error_msg);
 error:
     return NULL;
 }
 
-void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to, unsigned int index)
+void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING print, int print_to, VALUES_E field)
 {
     if (!root)
     {
         return;
     }
 
-    comp_in_tree(root->left, customer, oper, print, print_to, index);
-    int ret = comp_values(&(root->list->customer), customer, index);
+    comp_in_tree(root->left, customer, oper, print, print_to, field);
+    int ret = comp_values(&(root->list->customer), customer, field);
     if (strstr(oper, ">"))
     {
         if (ret > 0)
@@ -370,7 +372,7 @@ void comp_in_tree(BSTNode *root, Customer *customer, char *oper, PRINT_HANDLING 
         }
     }
 
-    comp_in_tree(root->right, customer, oper, print, print_to, index);
+    comp_in_tree(root->right, customer, oper, print, print_to, field);
 }
 
 int comp_int(int first, int second)
@@ -389,9 +391,9 @@ int comp_int(int first, int second)
     }
 }
 
-int comp_values(Customer *root, Customer *comp, unsigned int value)
+int comp_values(Customer *root, Customer *comp, VALUES_E field)
 {
-    switch (value)
+    switch (field)
     {
     case FIRST_NAME:
         return strcmp(root->first_name, comp->first_name);
