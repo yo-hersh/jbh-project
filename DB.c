@@ -54,7 +54,7 @@ static BSTNode *sort_by_debt_root = NULL;
 
 int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line);
 int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
-void add_debt_in_tail(Customer *customer);
+void add_debt_in_tail(Customer *customer, Node **tail);
 void compare_str(char *str, char *oper, VALUES_E field, PRINT_HANDLING print, int print_to);
 int comp_values(Customer *root, Customer *customer, VALUES_E field);
 int comp_date(Customer *customer_1, Customer *customer_2);
@@ -171,7 +171,7 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line
 
     if (!found)
     {
-        add_debt_in_tail(new);
+        add_debt_in_tail(new, &tail);
         add_to_bst(&sort_by_id_root, tail, compare_by_id);
         add_to_bst(&sort_by_debt_root, tail, compare_by_debt);
     }
@@ -216,7 +216,7 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line
     return ret;
 }
 
-void add_debt_in_tail(Customer *customer)
+void add_debt_in_tail(Customer *customer, Node **tail)
 {
     Node *new = calloc(1, sizeof(Node));
     if (!new)
@@ -227,16 +227,16 @@ void add_debt_in_tail(Customer *customer)
 
     new->customer = (*customer);
 
-    if (tail)
+    if (*tail)
     {
-        (tail)->next = new;
+        (*tail)->next = new;
     }
-    (tail) = new;
+    (*tail) = new;
     free(customer);
 
     if (!head)
     {
-        head = tail;
+        head = (*tail);
     }
 }
 
