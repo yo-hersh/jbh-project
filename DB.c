@@ -36,19 +36,19 @@ Validation validations[] = {
 
 #define BIT(i) (1 << i)
 
-typedef struct _List
+typedef struct _Node
 {
     Customer customer;
-    struct _List *next;
-} List;
+    struct _Node *next;
+} Node;
 
 typedef struct _BSTNode
 {
-    List *list;
+    Node *list;
     struct _BSTNode *right, *left;
 } BSTNode;
 
-static List *head = NULL, *tail = NULL;
+static Node *head = NULL, *tail = NULL;
 static BSTNode *sort_by_id_root = NULL;
 static BSTNode *sort_by_debt_root = NULL;
 
@@ -63,15 +63,15 @@ void tree_in_order(BSTNode *root, void (*do_something)(Customer *customer, void 
 void delete_debt_bst(BSTNode **root, int debt, unsigned int id);
 void free_all();
 void free_tree(BSTNode *root);
-void free_list(List *head);
+void free_list(Node *head);
 BSTNode *max_bst(BSTNode *root);
 Customer *create_customer_from_str(char *str, unsigned int line, PRINT_HANDLING print, int print_to);
 Customer *create_comp_customer(char *str, VALUES_E field, PRINT_HANDLING print, int print_to);
 BSTNode *find_by_id(BSTNode *root, unsigned int id);
-typedef int (*COMPARE_FUNC)(List *, List *);
-void add_to_bst(BSTNode **root, List *list, COMPARE_FUNC compare_func);
-int compare_by_id(List *list1, List *list2);
-int compare_by_debt(List *list1, List *list2);
+typedef int (*COMPARE_FUNC)(Node *, Node *);
+void add_to_bst(BSTNode **root, Node *list, COMPARE_FUNC compare_func);
+int compare_by_id(Node *list1, Node *list2);
+int compare_by_debt(Node *list1, Node *list2);
 
 void create_list(FILE *file)
 {
@@ -198,7 +198,7 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line
             goto free;
         }
 
-        List *list = found->list;
+        Node *list = found->list;
         delete_debt_bst(&sort_by_debt_root, list->customer.debt, list->customer.id);
         list->customer.debt += new->debt;
         list->customer.phone = new->phone;
@@ -218,7 +218,7 @@ int add_new(Customer *new, PRINT_HANDLING print, int print_to, unsigned int line
 
 void add_debt_in_tail(Customer *customer)
 {
-    List *new = calloc(1, sizeof(List));
+    Node *new = calloc(1, sizeof(Node));
     if (!new)
     {
         perror("error creating new list");
@@ -240,7 +240,7 @@ void add_debt_in_tail(Customer *customer)
     }
 }
 
-void add_to_bst(BSTNode **root, List *list, COMPARE_FUNC compare_func)
+void add_to_bst(BSTNode **root, Node *list, COMPARE_FUNC compare_func)
 {
     if (*root == NULL)
     {
@@ -482,7 +482,7 @@ void delete_debt_bst(BSTNode **root, int debt, unsigned int id)
     }
 }
 
-int compare_by_id(List *list1, List *list2)
+int compare_by_id(Node *list1, Node *list2)
 {
     if (list1->customer.id < list2->customer.id)
     {
@@ -498,7 +498,7 @@ int compare_by_id(List *list1, List *list2)
     }
 }
 
-int compare_by_debt(List *list1, List *list2)
+int compare_by_debt(Node *list1, Node *list2)
 {
     if (list1->customer.debt < list2->customer.debt)
     {
@@ -537,11 +537,11 @@ void free_tree(BSTNode *root)
     free(root);
 }
 
-void free_list(List *head)
+void free_list(Node *head)
 {
     while (head)
     {
-        List *temp = head->next;
+        Node *temp = head->next;
         free(head->customer.first_name);
         free(head->customer.second_name);
         free(head);
