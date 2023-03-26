@@ -12,7 +12,7 @@ const char *options_arr[] = {"select", "set"};
 void select_handling(char *str, PRINT_HANDLING print, int print_to);
 void set_handling(char *str, PRINT_HANDLING print, int print_to);
 
-void user_str(char *str, PRINT_HANDLING print, int print_to)
+void input_handling(char *str, PRINT_HANDLING print, int print_to)
 {
     str_to_lower(str);
     remove_white_spaces(str);
@@ -41,9 +41,9 @@ void user_str(char *str, PRINT_HANDLING print, int print_to)
 
 void select_handling(char *str, PRINT_HANDLING print, int print_to)
 {
-    char value[10] = {0}, oper[3] = {0};
+    char oper[3] = {0};
     int i;
-    while (*str == ' ')
+    if (*str == ' ')
     {
         str++;
     }
@@ -54,7 +54,6 @@ void select_handling(char *str, PRINT_HANDLING print, int print_to)
         if (!memcmp(str, values_arr[i], len))
         {
             str += len;
-            strcpy(value, values_arr[i]);
             break;
         }
     }
