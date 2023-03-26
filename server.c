@@ -116,7 +116,7 @@ void *conn_handler(void *args)
         }
         if (buf[0])
         {
-            user_str(buf, send_to_client, new_sock);
+            input_handling(buf, send_to_client, new_sock);
         }
     }
 
