@@ -60,7 +60,7 @@ int main(int argc, char const *argv[])
             }
             if (buf[0])
             {
-                user_str(buf, print_to_stdout, 0);
+                input_handling(buf, print_to_stdout, 0);
             }
         }
     }
