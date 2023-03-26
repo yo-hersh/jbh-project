@@ -30,8 +30,8 @@ int main(int argc, char const *argv[])
     char buf[200] = {0};
     while (1)
     {
-        print_massage(MASSAGE);
-        // printf("%s", massage);
+        print_massage(DISPLAY_OPTION);
+
         fgets(buf, sizeof(buf), stdin);
         if (!strcmp(buf, "quit\n"))
         {
@@ -39,22 +39,19 @@ int main(int argc, char const *argv[])
         }
         if (!strcmp(buf, "halp"))
         {
-            // printf("%s", display_option);
             print_massage(DISPLAY_OPTION);
         }
-        if (!strcmp(buf, "print\n"))
+        else if (!strcmp(buf, "print\n"))
         {
             print_all(print_to_stdout, 0);
         }
         else if (!strcmp(buf, "set --help\n"))
         {
             print_massage(SET_HELP);
-            // printf("%s%s", set_help, values_help);
         }
         else if (!strcmp(buf, "select --help\n"))
         {
             print_massage(SELECT_HELP);
-            // printf("%s%s", select_help, values_help);
         }
         else
         {

@@ -40,12 +40,6 @@ typedef enum
     SET_HELP
 } MASSAGE_E;
 
-// #define display_option  "--please select options: set <value> / select <value> / print\n--use <option> --help to see more\n--type quit to exit\n"
-// #define select_help  "--select <value> <operation> <everything>.\n"
-// #define set_help  "--set <value> = <everything>.\n"
-// #define values_help  "--values: first name, last name, id, phone, date, debt.\n"
-// #define massage  "--------------------STORE DATABASE---------------------\n--Enter a 5 messages, to send it enter send. for options enter halp\n"
-
 #define ARR_LEN(_arr) (sizeof(_arr) / sizeof(_arr[0]))
 
 void remove_white_spaces(char *str);
