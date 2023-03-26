@@ -13,6 +13,7 @@ int valid_name(char *str);
 int is_not_only_digit(char *str);
 int is_not_only_char(char *str);
 int buf_overflow(char *buf, PRINT_HANDLING print, int print_to);
+void print_massage(MASSAGE_E type);
 
 void remove_white_spaces(char *str)
 {
@@ -133,8 +134,8 @@ int valid_debt(char *str)
     {
         return 0;
     }
- 
-    // for - by the str[0] 
+
+    // for - by the str[0]
     if (str[0] == 45)
     {
         str++;
@@ -234,7 +235,7 @@ void print_customer(Customer *customer, PRINT_HANDLING print, int print_to)
     free(str);
 }
 
-void print_to_stdout(int socket_id,const char *str)
+void print_to_stdout(int socket_id, const char *str)
 {
     printf("%s", str);
 }
@@ -315,4 +316,31 @@ int add_date(Customer *customer, char *value)
         column++;
     }
     return 1;
+}
+
+void print_massage(MASSAGE_E type)
+{
+    char display_option[] = "--please select options: set <value> / select <value> / print\n--use <option> --help to see more\n--type quit to exit\n",
+         select_help[] = "--select <value> <operation> <everything>.\n",
+         set_help[] = "--set <value> = <everything>.\n",
+         values_help[] = "--values: first name, last name, id, phone, date, debt.\n",
+         massage[] = "--------------------STORE DATABASE---------------------\n--Enter a 5 messages, to send it enter send. for options enter halp\n";
+
+    switch (type)
+    {
+    case MASSAGE:
+        printf("%s", massage);
+        break;
+    case DISPLAY_OPTION:
+        printf("%s", display_option);
+        break;
+    case SELECT_HELP:
+        printf("%s%s", select_help, values_help);
+        break;
+    case SET_HELP:
+        printf("%s%s", set_help, values_help);
+        break;
+    default:
+        break;
+    }
 }

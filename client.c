@@ -27,7 +27,8 @@ int main(int argc, char **argv)
     serv_addr.sin_addr.s_addr = inet_addr(argv[1]);
     serv_addr.sin_port = htons(atoi(argv[2]));
 
-    printf("%s", massage);
+print_massage(MASSAGE);
+    // printf("%s", massage);
     i = 0;
     while (1)
     {
@@ -40,15 +41,18 @@ int main(int argc, char **argv)
         
         if (!strcmp(temp_buf, "halp"))
         {
-            printf("%s", display_option);
+            print_massage(DISPLAY_OPTION);
+            // printf("%s", display_option);
         }
         else if (!strcmp(temp_buf, "select --help"))
         {
-            printf("%s%s", select_help, values_help);
+            print_massage(SELECT_HELP);
+            // printf("%s%s", select_help, values_help);
         }
         else if (!strcmp(temp_buf, "set --help"))
         {
-            printf("%s%s", set_help, values_help);
+            print_massage(SET_HELP);
+            // printf("%s%s", set_help, values_help);
         }
         else if (!strcmp(temp_buf, "quit"))
         {
