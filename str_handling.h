@@ -1,46 +1,6 @@
 #ifndef STR_HANDLING_H
 #define STR_HANDLING_H
-
-#include "DB.h"
-
-#define BUF_LEN 1024
-#define MSG_LEN 200
-
-typedef enum
-{
-    FIRST_NAME,
-    SECOND_NAME,
-    ID,
-    PHONE,
-    DATE,
-    DEBT,
-    SIZEOF_VALUES
-} VALUES_E;
-
-typedef enum
-{
-    SET,
-    SELECT,
-    SIZEOF_OPTIONS
-} OPTIONS_E;
-
-typedef enum
-{
-    DAY,
-    MONTH,
-    YEAR,
-    SIZEOF_DATES
-} DATE_E;
-
-typedef enum
-{
-    MASSAGE,
-    DISPLAY_OPTION,
-    SELECT_HELP,
-    SET_HELP
-} MASSAGE_E;
-
-#define ARR_LEN(_arr) (sizeof(_arr) / sizeof(_arr[0]))
+#include "utils.h"
 
 void remove_white_spaces(char *str);
 void str_to_lower(char *str);

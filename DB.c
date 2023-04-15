@@ -21,6 +21,7 @@
 typedef struct Validation
 {
     int (*valid_func)(char *value);
+    // return value needed for a func which included a calloc inside.  
     int (*add_func)(Customer *customer, char *value);
     const char *error_msg;
 } Validation;
@@ -89,6 +90,8 @@ void create_list(FILE *file)
     print_all(print_to_stdout, 0);
 }
 
+// the func is in using for bute options, reeding from a file and users input,
+// line is in use only by the file running 
 int create_customer(char *str, unsigned int line, PRINT_HANDLING print, int print_to)
 {
     Customer *new = create_customer_from_str(str, line, print, print_to);
